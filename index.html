@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lokalmart Odoo Migration Builder</title>
+  <style>
+    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+    header { padding:28px 22px 18px; background:linear-gradient(135deg,#fff,#fff7ed); border-bottom:1px solid var(--line); }
+    .wrap { max-width:1180px; margin:0 auto; }
+    h1 { margin:0; font-size:28px; letter-spacing:-.03em; }
+    p { color:var(--muted); line-height:1.55; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px auto; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(15,23,42,.04); }
+    .card h2 { margin:0 0 12px; font-size:17px; }
+    label { display:block; font-size:12px; color:var(--muted); margin:10px 0 5px; }
+    input, select, textarea { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; font:inherit; background:#fff; }
+    textarea { min-height:110px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    button { border:0; padding:11px 14px; border-radius:12px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
+    button.secondary { background:#172033; }
+    button.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    pre { white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e2e8f0; padding:14px; border-radius:14px; overflow:auto; max-height:360px; font-size:12px; }
+    .status { margin-top:12px; padding:10px 12px; border-radius:12px; background:#f8fafc; color:var(--muted); font-size:13px; }
+    .ok { color:var(--ok); } .bad { color:var(--bad); }
+    .small { font-size:12px; }
+    @media (max-width: 860px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Lokalmart Odoo Migration Builder</h1>
+    <p>Scanner, exporter, importer, external ID resolver, dan validator QWeb/XML untuk migrasi aman Odoo 18 via XLSX.</p>
+  </div>
+</header>
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <h2>Source Odoo lama</h2>
+      <label>URL</label><input id="s_url" placeholder="https://edu-lokalmart.odoo.com" />
+      <label>Database</label><input id="s_db" placeholder="nama-db" />
+      <label>Username</label><input id="s_user" placeholder="email admin" />
+      <label>Password / API key</label><input id="s_pass" type="password" />
+      <div class="actions"><button onclick="testConn('source')">Test Source</button></div>
+    </section>
+    <section class="card">
+      <h2>Target Odoo baru</h2>
+      <label>URL</label><input id="t_url" placeholder="https://target.odoo.com" />
+      <label>Database</label><input id="t_db" placeholder="nama-db-target" />
+      <label>Username</label><input id="t_user" placeholder="email admin" />
+      <label>Password / API key</label><input id="t_pass" type="password" />
+      <div class="actions"><button onclick="testConn('target')">Test Target</button></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Mode kerja</h2>
+    <label>Profile export/import</label>
+    <select id="profile">
+      <option value="full">Full migration safe</option>
+      <option value="schema">Schema only</option>
+      <option value="master">Master data</option>
+      <option value="project">Project & operation</option>
+      <option value="website">Website pages</option>
+      <option value="accounting">Accounting config</option>
+    </select>
+    <label>Custom model list, opsional, pisahkan koma</label>
+    <input id="models" placeholder="res.partner,product.template,project.project,website.page,ir.ui.view" />
+    <div class="actions">
+      <button onclick="fullAutopsy()">Full Autopsy Source</button>
+      <button onclick="gapReport()" class="secondary">Gap Source vs Target</button>
+      <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
+      <button onclick="exportXlsx()">Export XLSX</button>
+      <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
+    </div>
+    <p class="small">Catatan: untuk data besar gunakan profile kecil dulu. Vercel Serverless punya batas waktu, jadi export/import besar sebaiknya dipecah per model/profile.</p>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Import XLSX ke target</h2>
+      <label>Pilih file XLSX migration-safe</label>
+      <input id="xlsx" type="file" accept=".xlsx" />
+      <label>Batas baris per sheet</label><input id="maxRows" type="number" value="500" />
+      <div class="actions">
+        <button onclick="importPreview()" class="ghost">Preview Import</button>
+        <button onclick="importRun()">Import ke Target</button>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Validator QWeb/XML</h2>
+      <label>Tempel arch_db / QWeb</label>
+      <textarea id="xmlbox" placeholder="<template>...</template>"></textarea>
+      <div class="actions"><button onclick="validateXml()" class="ghost">Validate XML</button></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Log</h2>
+    <div id="status" class="status">Siap.</div>
+    <pre id="log">{}</pre>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function conn(prefix) {
+  return { url: $(prefix+'_url').value.trim(), db: $(prefix+'_db').value.trim(), username: $(prefix+'_user').value.trim(), password: $(prefix+'_pass').value };
+}
+function selectedModels() {
+  const raw = $('models').value.trim();
+  return raw ? raw.split(',').map(s=>s.trim()).filter(Boolean) : undefined;
+}
+function status(text, bad=false) { $('status').innerHTML = bad ? '<span class="bad">'+text+'</span>' : text; }
+function log(obj) { $('log').textContent = JSON.stringify(obj, null, 2); }
+async function call(action, extra={}) {
+  status('Memproses '+action+'...');
+  const body = { action, source: conn('s'), target: conn('t'), payload: { profile: $('profile').value, models: selectedModels(), ...extra } };
+  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const json = await res.json();
+  log(json);
+  status(json.ok ? 'Selesai: '+action : 'Gagal: '+(json.error || action), !json.ok);
+  return json;
+}
+async function testConn(which) {
+  const body = { action:'test_connection' };
+  body[which] = conn(which === 'source' ? 's' : 't');
+  body.source = body[which];
+  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const json = await res.json(); log(json); status(json.ok ? 'Koneksi '+which+' berhasil.' : 'Koneksi gagal: '+json.error, !json.ok);
+}
+async function fullAutopsy(){ await call('full_autopsy'); }
+async function gapReport(){ await call('target_gap_report'); }
+async function ensureXmlIds(){ await call('ensure_external_ids', { module:'lokalmart_mig', limit:500 }); }
+function downloadBase64(filename, base64, mime) {
+  const a = document.createElement('a'); a.href = 'data:'+mime+';base64,'+base64; a.download = filename; a.click();
+}
+async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, limit:500 }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, limit:500 }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+function readFileBase64(file) { return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
+async function importPreview(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_preview_xlsx', { fileBase64:b64 }); }
+async function importRun(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_xlsx', { fileBase64:b64, maxRowsPerSheet: Number($('maxRows').value || 500), stopOnError:false }); }
+async function validateXml(){ await call('validate_qweb_xml', { xml: $('xmlbox').value }); }
+</script>
+</body>
+</html>
