@@ -3,590 +3,259 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lokalmart Odoo Migration Builder</title>
+  <title>Lokalmart Odoo Migration Console</title>
   <style>
-    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; --soft:#fff7ed; --warn:#ca8a04; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
-    header { padding:28px 22px 18px; background:linear-gradient(135deg,#fff,#fff7ed); border-bottom:1px solid var(--line); }
-    .wrap { max-width:1180px; margin:0 auto; }
-    h1 { margin:0; font-size:28px; letter-spacing:-.03em; }
-    p { color:var(--muted); line-height:1.55; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px auto; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(15,23,42,.04); }
-    .card h2 { margin:0 0 12px; font-size:17px; }
-    label { display:block; font-size:12px; color:var(--muted); margin:10px 0 5px; }
-    input, select, textarea { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; font:inherit; background:#fff; }
-    textarea { min-height:110px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
-    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
-    button { border:0; padding:11px 14px; border-radius:12px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
-    button.secondary { background:#172033; }
-    button.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
-    button.danger { background:var(--bad); }
-    button:disabled { opacity:.6; cursor:not-allowed; }
-    pre { white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e2e8f0; padding:14px; border-radius:14px; overflow:auto; max-height:360px; font-size:12px; }
-    .status { margin-top:12px; padding:10px 12px; border-radius:12px; background:#f8fafc; color:var(--muted); font-size:13px; }
-    .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
-    .small { font-size:12px; }
-    .preset-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px; }
-    .preset { display:flex; gap:10px; align-items:flex-start; padding:13px; border:1px solid var(--line); border-radius:15px; background:#fff; }
-    .preset:hover { border-color:#fdba74; background:#fffaf5; }
-    .preset input { width:auto; margin-top:3px; }
-    .preset strong { display:block; font-size:14px; }
-    .preset span { display:block; color:var(--muted); font-size:12px; line-height:1.45; margin-top:3px; }
-    .model-preview { margin-top:12px; padding:12px; border:1px dashed #fdba74; background:var(--soft); border-radius:14px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:#7c2d12; max-height:150px; overflow:auto; }
-    .pill { display:inline-block; padding:5px 9px; border-radius:999px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-size:12px; margin:2px; }
-    .progress-wrap { height:12px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin:10px 0; }
-    .progress-bar { height:100%; width:0%; background:var(--accent); transition:width .2s ease; }
-    .job-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:12px; }
-    .job-table th, .job-table td { border-bottom:1px solid var(--line); padding:8px 6px; text-align:left; vertical-align:top; }
-    .job-table th { color:var(--muted); font-weight:700; background:#fafafa; }
-    .mono { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .category-filter { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:10px; }
-    .category-filter label { margin:0; display:flex; gap:8px; align-items:flex-start; padding:8px 10px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); }
-    .category-filter input { width:auto; margin-top:2px; }
-    .category-filter span { display:block; color:var(--muted); font-size:11px; }
-    .cat-badge { display:inline-block; padding:3px 7px; border-radius:999px; background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; font-size:11px; white-space:nowrap; }
-    @media (max-width: 860px) { .grid, .preset-grid { grid-template-columns:1fr; } }
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#111827;--muted:#667085;--line:#e5e7eb;--accent:#f97316;--accent2:#0f172a;--ok:#16a34a;--bad:#dc2626;--warn:#ca8a04;--soft:#fff7ed;--blue:#2563eb}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif} header{background:linear-gradient(135deg,#fff,#fff7ed);border-bottom:1px solid var(--line);padding:24px 18px 16px}.wrap{max-width:1220px;margin:0 auto}h1{margin:0;font-size:28px;letter-spacing:-.03em}p{color:var(--muted);line-height:1.55}.topline{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pill{display:inline-flex;gap:6px;align-items:center;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:999px;padding:6px 10px;font-size:12px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tab{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 10px 26px rgba(15,23,42,.045);margin-bottom:14px}.card h2{margin:0 0 10px;font-size:18px}.card h3{margin:0 0 8px;font-size:15px}.section{display:none}.section.active{display:block}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;padding:11px 12px;font:inherit}input[type=checkbox],input[type=radio]{width:auto}textarea{min-height:110px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:#fff;font-weight:800;cursor:pointer}button.secondary{background:var(--accent2)}button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}button.danger{background:var(--bad)}button.blue{background:var(--blue)}button:disabled{opacity:.55;cursor:not-allowed}.small{font-size:12px}.muted{color:var(--muted)}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.box{border:1px dashed #fdba74;background:#fff7ed;border-radius:15px;padding:12px;color:#7c2d12}.choice{display:flex;gap:10px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:15px;background:#fff}.choice:hover{border-color:#fdba74;background:#fffaf5}.choice strong{display:block}.choice span{font-size:12px;color:var(--muted);display:block;margin-top:3px}.status{border-radius:14px;padding:11px 13px;background:#f8fafc;color:var(--muted);font-size:13px;margin-top:10px}.progress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:10px 0}.bar{height:100%;width:0;background:var(--accent);transition:width .18s ease}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:10px;max-height:430px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#fafafa;color:var(--muted);position:sticky;top:0}.badge{display:inline-block;padding:3px 7px;border-radius:999px;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;font-size:11px;white-space:nowrap}.step{display:flex;gap:10px;align-items:center;margin:8px 0}.stepnum{width:28px;height:28px;border-radius:999px;background:#ffedd5;color:#9a3412;display:flex;align-items:center;justify-content:center;font-weight:900}.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quick button{height:72px;text-align:left;line-height:1.25}.hidden{display:none!important}pre{white-space:pre-wrap;word-break:break-word;background:#0f172a;color:#e2e8f0;border-radius:14px;padding:12px;max-height:360px;overflow:auto;font-size:12px}.drop{border:2px dashed #fdba74;background:#fff7ed;border-radius:18px;padding:18px;text-align:center}.drop input{background:#fff}.split{display:grid;grid-template-columns:280px 1fr;gap:14px}.side{position:sticky;top:12px;align-self:start}@media(max-width:900px){.grid,.grid3,.hero,.quick,.split{grid-template-columns:1fr}.side{position:static}}
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <h1>Lokalmart Odoo Migration Builder</h1>
-    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, import foto produk dari <b>image_url</b>, full database export bertahap tanpa ZIP, dan opsi 1 XLSX multi-sheet migration-safe bertahap.</p>
+    <h1>Lokalmart Odoo Migration Console</h1>
+    <p>UI sederhana untuk import XLSX dari ChatGPT, export database Odoo migration-safe, dan pindah data ke database lain. Engine lama tetap dipakai, tetapi proses dibuat bertahap, bisa stop, error lanjut, dan relasi memakai External ID.</p>
+    <div class="topline"><span class="pill">Default: edu-lokalmart.odoo.com</span><span class="pill">User: sadjax@gmail.com</span><span class="pill">Sheet = technical model</span><span class="pill">Foto = image_url → image_1920</span></div>
   </div>
 </header>
 <main class="wrap">
-  <div class="grid">
-    <section class="card">
-      <h2>Source Odoo lama</h2>
-      <label>URL</label><input id="s_url" placeholder="https://edu-lokalmart.odoo.com" value="https://edu-lokalmart.odoo.com" />
-      <label>Database</label><input id="s_db" placeholder="nama-db" value="edu-lokalmart" />
-      <label>Username</label><input id="s_user" placeholder="email admin" value="sadjax@gmail.com" />
-      <label>Password / API key</label><input id="s_pass" type="password" />
-      <div class="actions"><button onclick="testConn('source')">Test Source</button></div>
-    </section>
-    <section class="card">
-      <h2>Target Odoo baru</h2>
-      <label>URL</label><input id="t_url" placeholder="https://target.odoo.com" value="https://edu-lokalmart.odoo.com" />
-      <label>Database</label><input id="t_db" placeholder="nama-db-target" value="edu-lokalmart" />
-      <label>Username</label><input id="t_user" placeholder="email admin" value="sadjax@gmail.com" />
-      <label>Password / API key</label><input id="t_pass" type="password" />
-      <div class="actions"><button onclick="testConn('target')">Test Target</button></div>
-    </section>
+  <div class="tabs">
+    <button class="tab active" data-tab="home" onclick="openTab('home')">Beranda</button>
+    <button class="tab" data-tab="import" onclick="openTab('import')">Import XLSX</button>
+    <button class="tab" data-tab="export" onclick="openTab('export')">Export Database</button>
+    <button class="tab" data-tab="migrate" onclick="openTab('migrate')">Pindah Database</button>
+    <button class="tab" data-tab="logs" onclick="openTab('logs')">Log & Riwayat</button>
   </div>
 
-  <section class="card">
-    <h2>Pilih Paket Model Otomatis</h2>
-    <p class="small">Tidak perlu mengisi payload models manual. Centang kebutuhan import/export, lalu sistem otomatis mengirim daftar model yang sesuai ke API.</p>
-    <div class="preset-grid">
-      <label class="preset"><input type="checkbox" name="preset" value="schema" onchange="onPresetChange()" /><div><strong>Schema &amp; Custom Fields</strong><span>Custom model, custom field, selection, QWeb/backend view, menu, access rights, dan record rules.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="master" checked onchange="onPresetChange()" /><div><strong>Master Data, Produk &amp; Foto</strong><span>Company, kontak/vendor, kategori, UoM, attribute, produk, supplier info. Foto diproses lewat image_url.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="project" onchange="onPresetChange()" /><div><strong>Project &amp; Operasional</strong><span>Project, stage, milestone, task, analytic account, analytic line, dan timesheet.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="accounting" onchange="onPresetChange()" /><div><strong>Akuntansi Config</strong><span>Bagan akun, pajak, jurnal, payment terms, analytic plan, dan analytic account.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="website" onchange="onPresetChange()" /><div><strong>Website Pages &amp; QWeb</strong><span>Website, ir.ui.view/QWeb, website.page, website.menu, dan attachment website.</span></div></label>
-      <label class="preset"><input type="checkbox" id="preset_full" name="preset" value="full" onchange="onPresetChange()" /><div><strong>Semua Migration-Safe</strong><span>Gabungan utama. Cocok untuk full autopsy/export, tetapi tetap import bertahap lebih aman.</span></div></label>
-    </div>
-    <div id="presetPills" style="margin-top:12px"></div>
-    <div id="modelPreview" class="model-preview"></div>
-    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeBinary" /><div><strong>Sertakan binary/foto/attachment</strong><span>Aktifkan hanya jika butuh arsip gambar/file. File bisa besar dan proses lebih lama.</span></div></label>
-    <div class="actions">
-      <button onclick="scanSelectedModels()" class="ghost">Cek Model Terpilih</button>
-      <button onclick="fullAutopsy()">Full Autopsy Source</button>
-      <button onclick="gapReport()" class="secondary">Gap Source vs Target</button>
-      <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
-      <button onclick="exportXlsx()">Export XLSX Gabungan</button>
-      <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
-      <button onclick="exportFullMultiSheet()" class="ghost">Export 1 XLSX Multi-Sheet</button>
-    </div>
-    <p class="small">Catatan: untuk database yang sama antara source dan target, gunakan scan/export dulu. Jangan import besar ke database yang sama kecuali memang ingin update data yang sudah punya External ID.</p>
-  </section>
-
-  <section class="card">
-    <h2>Full Database Export Bertahap, Tanpa ZIP</h2>
-    <p class="small">Mode ini mengekspor database sebagai banyak file XLSX terpisah per model/part. File otomatis diberi prefix kategori, misalnya <b>02_products_inventory__product.template__part_0001</b>, supaya 400 file tidak tercampur. Proses berjalan satu per satu, status terlihat, bisa dihentikan, dan jika satu model timeout/error maka model berikutnya tetap lanjut.</p>
-    <div class="grid" style="margin:0">
-      <div>
-        <label>Batch rows per file</label><input id="archiveBatchSize" type="number" value="50" min="5" max="500" />
+  <section id="home" class="section active">
+    <div class="hero">
+      <div class="card">
+        <h2>Panel Koneksi</h2>
+        <div class="grid">
+          <div>
+            <h3>Source Odoo</h3>
+            <label>URL</label><input id="s_url" value="https://edu-lokalmart.odoo.com" />
+            <label>Database</label><input id="s_db" value="edu-lokalmart" />
+            <label>Username</label><input id="s_user" value="sadjax@gmail.com" />
+            <label>Password / API key</label><input id="s_pass" type="password" autocomplete="off" />
+            <div class="actions"><button onclick="testConn('source')">Test Source</button><button class="ghost" onclick="copySourceToTarget()">Samakan ke Target</button></div>
+            <div id="sourceStatus" class="status">Belum dites.</div>
+          </div>
+          <div>
+            <h3>Target Odoo</h3>
+            <label>URL</label><input id="t_url" value="https://edu-lokalmart.odoo.com" />
+            <label>Database</label><input id="t_db" value="edu-lokalmart" />
+            <label>Username</label><input id="t_user" value="sadjax@gmail.com" />
+            <label>Password / API key</label><input id="t_pass" type="password" autocomplete="off" />
+            <div class="actions"><button onclick="testConn('target')">Test Target</button><button class="ghost" onclick="saveSettings()">Simpan di Browser</button></div>
+            <div id="targetStatus" class="status">Belum dites.</div>
+          </div>
+        </div>
       </div>
-      <div>
-        <label>Batas jumlah model ditemukan</label><input id="archiveModelLimit" type="number" value="100000" min="1" />
+      <div class="card">
+        <h2>Aksi Cepat</h2>
+        <div class="quick">
+          <button onclick="openTab('import')">Import XLSX<br><span class="small">File dari ChatGPT</span></button>
+          <button class="secondary" onclick="openTab('export')">Export DB<br><span class="small">Arsip XLSX</span></button>
+          <button class="blue" onclick="openTab('migrate')">Pindah DB<br><span class="small">Source → Target</span></button>
+        </div>
+        <div class="box" style="margin-top:12px">
+          <b>Urutan aman:</b><br>1. Test Source/Target<br>2. Import custom field dulu jika file dari ChatGPT<br>3. Export memakai External ID<br>4. Import ulang membaca <span class="mono">00_import_order</span> dan sheet technical model.
+        </div>
       </div>
-    </div>
-    <label class="preset" style="margin-top:12px"><input type="checkbox" id="archiveUnsafe" /><div><strong>Sertakan model sistem berat/berisiko</strong><span>Normalnya jangan dicentang. Jika aktif, mail.message, bus, log, dan model teknis lain bisa membuat export sangat berat.</span></div></label>
-    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeEmptySheets" /><div><strong>Ekspor model kosong juga</strong><span>Normalnya jangan dicentang. Jika mati, model yang tidak punya record tidak akan dibuatkan file/sheet kosong.</span></div></label>
-    <h3 style="font-size:14px;margin:14px 0 6px">Kategori model yang akan diekspor</h3>
-    <div id="archiveCategoryFilters" class="category-filter"><span class="small">Klik Muat Daftar Model Aman untuk menampilkan kategori.</span></div>
-    <div class="actions">
-      <button onclick="loadArchiveModels()" class="ghost">Muat Daftar Model Aman</button>
-      <button onclick="startFullArchiveJob()">Mulai Export Semua Isi DB</button>
-      <button onclick="stopFullArchiveJob()" class="danger" id="stopArchiveBtn" disabled>Stop Export</button>
-      <button onclick="downloadArchiveManifest()" class="secondary" id="manifestBtn" disabled>Download Manifest</button>
-    </div>
-    <div class="progress-wrap"><div id="archiveProgressBar" class="progress-bar"></div></div>
-    <div id="archiveStatus" class="status">Belum ada job export.</div>
-    <div style="overflow:auto; max-height:360px">
-      <table class="job-table">
-        <thead><tr><th>#</th><th>Kategori</th><th>Model</th><th>Status</th><th>Part</th><th>Rows</th><th>File</th><th>Error</th></tr></thead>
-        <tbody id="archiveRows"></tbody>
-      </table>
     </div>
   </section>
 
-  <div class="grid">
-    <section class="card">
-      <h2>Import XLSX ke target</h2>
-      <label>Pilih file XLSX migration-safe</label>
-      <input id="xlsx" type="file" accept=".xlsx" />
-      <label>Batas baris per sheet</label><input id="maxRows" type="number" value="500" />
-      <div class="actions">
-        <button onclick="importPreview()" class="ghost">Preview Import</button>
-        <button onclick="importRun()">Import ke Target</button>
-        <button onclick="importImages()" class="secondary">Import Foto dari URL</button>
+  <section id="import" class="section">
+    <div class="split">
+      <aside class="card side">
+        <h2>Import XLSX dari ChatGPT</h2>
+        <div class="step"><div class="stepnum">1</div><div>Upload file</div></div>
+        <div class="step"><div class="stepnum">2</div><div>Preview sheet & model</div></div>
+        <div class="step"><div class="stepnum">3</div><div>Import per sheet</div></div>
+        <div class="step"><div class="stepnum">4</div><div>Import foto URL</div></div>
+        <p class="small">Sheet data sebaiknya memakai nama model technical seperti <span class="mono">product.template</span>, <span class="mono">res.partner</span>, <span class="mono">ir.model.fields</span>.</p>
+      </aside>
+      <div>
+        <section class="card">
+          <h2>1. Upload XLSX</h2>
+          <div class="drop">
+            <input id="xlsx" type="file" accept=".xlsx,.xls" onchange="onImportFilePicked()" />
+            <p class="small">Format standar: <span class="mono">_external_id</span>, <span class="mono">_model</span>, relasi <span class="mono">*_external_id</span>/<span class="mono">*_external_ids</span>, foto <span class="mono">image_url</span>.</p>
+          </div>
+          <div class="actions"><button onclick="previewImportFile()">Cek File</button><button class="ghost" onclick="downloadXlsxRules()">Download Aturan XLSX</button></div>
+          <div id="importStatus" class="status">Belum ada file.</div>
+        </section>
+        <section class="card">
+          <h2>2. Preview</h2>
+          <div id="localPreview" class="box">Preview lokal belum dibuat.</div>
+          <div class="tablewrap"><table><thead><tr><th>Urutan</th><th>Sheet</th><th>Model</th><th>Rows</th><th>Status</th><th>Catatan</th></tr></thead><tbody id="importPreviewRows"></tbody></table></div>
+        </section>
+        <section class="card">
+          <h2>3. Mode Import</h2>
+          <div class="grid3">
+            <label class="choice"><input type="radio" name="importMode" value="upsert" checked><div><strong>Import aman / upsert</strong><span>Update jika External ID ada, create jika belum ada.</span></div></label>
+            <label class="choice"><input type="radio" name="importMode" value="create"><div><strong>Create baru</strong><span>Untuk data baru saja. Tetap memakai External ID.</span></div></label>
+            <label class="choice"><input type="radio" name="importMode" value="update"><div><strong>Update saja</strong><span>Untuk pembaruan record existing.</span></div></label>
+          </div>
+          <div class="grid3" style="margin-top:10px">
+            <label class="choice"><input id="impContinue" type="checkbox" checked><div><strong>Lanjut walau error</strong><span>Error per row/sheet dicatat ke log.</span></div></label>
+            <label class="choice"><input id="impSkipEmpty" type="checkbox" checked><div><strong>Lewati row kosong</strong><span>Row kosong tidak dikirim ke Odoo.</span></div></label>
+            <label class="choice"><input id="impPhotos" type="checkbox" checked><div><strong>Import foto setelah data</strong><span>Memproses image_url/photo_import_queue.</span></div></label>
+          </div>
+          <label>Max rows per sheet/request</label><input id="impMaxRows" type="number" value="1000" min="1" max="10000" />
+          <div class="actions"><button onclick="startImportJob()">Mulai Import Bertahap</button><button id="stopImportBtn" class="danger" onclick="stopImportJob()" disabled>Stop Import</button><button class="ghost" onclick="downloadJobLog('import')">Download Log Import</button></div>
+          <div class="progress"><div id="importBar" class="bar"></div></div>
+          <div class="tablewrap"><table><thead><tr><th>#</th><th>Sheet</th><th>Model</th><th>Status</th><th>Rows</th><th>Created</th><th>Updated</th><th>Error</th></tr></thead><tbody id="importJobRows"></tbody></table></div>
+        </section>
       </div>
-    </section>
-    <section class="card">
-      <h2>Validator QWeb/XML</h2>
-      <label>Tempel arch_db / QWeb</label>
-      <textarea id="xmlbox" placeholder="&lt;template&gt;...&lt;/template&gt;"></textarea>
-      <div class="actions"><button onclick="validateXml()" class="ghost">Validate XML</button></div>
-    </section>
-  </div>
+    </div>
+  </section>
 
-  <section class="card">
-    <h2>Log</h2>
-    <div id="status" class="status">Siap.</div>
-    <pre id="log">{}</pre>
+  <section id="export" class="section">
+    <div class="card">
+      <h2>Export Database</h2>
+      <p class="small">Pilih paket. Tidak perlu mengisi payload models manual. Untuk database besar, gunakan file terpisah per model/part. Untuk file rapi yang mudah diimport ulang, gunakan 1 XLSX multi-sheet.</p>
+      <div id="presetCards" class="grid3"></div>
+      <div class="actions"><button class="ghost" onclick="loadPresetModels()">Refresh Preset</button><button class="ghost" onclick="checkSelectedModels()">Cek Model Terpilih</button><button class="ghost" onclick="fullAutopsy()">Full Autopsy</button><button class="ghost" onclick="gapReport()">Gap Source vs Target</button></div>
+      <div id="selectedModelBox" class="box" style="margin-top:12px">Paket default: Master Data.</div>
+    </div>
+    <div class="card">
+      <h2>Format Export</h2>
+      <div class="grid3">
+        <label class="choice"><input type="radio" name="exportFormat" value="split" checked><div><strong>Banyak XLSX terpisah</strong><span>Paling aman untuk database besar, bisa stop dan lanjut model berikutnya.</span></div></label>
+        <label class="choice"><input type="radio" name="exportFormat" value="multisheet"><div><strong>1 XLSX multi-sheet</strong><span>Rapi untuk import ulang. Sheet memakai technical model.</span></div></label>
+        <label class="choice"><input type="radio" name="exportFormat" value="zip"><div><strong>ZIP package</strong><span>Opsional, untuk arsip folder. Lebih rawan timeout.</span></div></label>
+      </div>
+      <div class="grid3" style="margin-top:10px">
+        <label class="choice"><input id="expSkipEmpty" type="checkbox" checked><div><strong>Lewati model/row kosong</strong><span>Tidak membuat sheet kosong.</span></div></label>
+        <label class="choice"><input id="expContinue" type="checkbox" checked><div><strong>Lanjut walau model error</strong><span>Error masuk 99_export_report.</span></div></label>
+        <label class="choice"><input id="expSynthetic" type="checkbox" checked><div><strong>External ID sintetis</strong><span>Tidak menulis ke DB lama.</span></div></label>
+        <label class="choice"><input id="expBinary" type="checkbox"><div><strong>Sertakan binary/foto langsung</strong><span>Berat. Biasanya cukup image_url.</span></div></label>
+        <label class="choice"><input id="expDiscoverAll" type="checkbox"><div><strong>Full database semua model aman</strong><span>Ambil daftar dari ir.model, lalu kategori.</span></div></label>
+        <label class="choice"><input id="expUnsafe" type="checkbox"><div><strong>Sertakan model rawan</strong><span>Mail/log/bus biasanya tidak disarankan.</span></div></label>
+      </div>
+      <div class="grid">
+        <div><label>Batch rows</label><input id="expBatch" type="number" value="50" min="5" max="500"></div>
+        <div><label>Batas model discovery</label><input id="expModelLimit" type="number" value="100000" min="1"></div>
+      </div>
+      <div class="actions"><button onclick="loadArchiveModels()">Muat Daftar Model Aman</button><button onclick="startExportJob()">Mulai Export</button><button id="stopExportBtn" class="danger" onclick="stopExportJob()" disabled>Stop Export</button><button class="ghost" onclick="downloadJobLog('export')">Download Manifest/Log</button></div>
+      <div id="exportStatus" class="status">Siap export.</div>
+      <div class="progress"><div id="exportBar" class="bar"></div></div>
+      <div id="categoryFilters" class="grid3"></div>
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>Kategori</th><th>Model</th><th>Status</th><th>Part</th><th>Rows</th><th>File</th><th>Error</th></tr></thead><tbody id="exportJobRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="migrate" class="section">
+    <div class="card">
+      <h2>Pindah Database Source → Target</h2>
+      <p class="small">Mode ini menjalankan export batch dari source lalu langsung import batch ke target. Aman untuk data terpilih, tetapi jangan gunakan source dan target database yang sama kecuali memang untuk testing update.</p>
+      <div class="actions"><button onclick="testConn('source')">Test Source</button><button onclick="testConn('target')">Test Target</button><button class="ghost" onclick="gapReport()">Preflight Gap</button></div>
+      <div class="grid3" style="margin-top:10px">
+        <label class="choice"><input id="migSchemaFirst" type="checkbox" checked><div><strong>Schema dulu</strong><span>Custom fields/model sebelum data.</span></div></label>
+        <label class="choice"><input id="migContinue" type="checkbox" checked><div><strong>Lanjut walau error</strong><span>Gagal satu model tidak berhenti total.</span></div></label>
+        <label class="choice"><input id="migPhotos" type="checkbox"><div><strong>Migrasi foto URL</strong><span>Untuk foto, sebaiknya setelah produk selesai.</span></div></label>
+      </div>
+      <label>Batch rows migrasi</label><input id="migBatch" type="number" value="50" min="5" max="200">
+      <div class="actions"><button class="blue" onclick="startMigrationJob()">Mulai Migrasi Terpilih</button><button id="stopMigrateBtn" class="danger" onclick="stopMigrationJob()" disabled>Stop Migrasi</button><button class="ghost" onclick="downloadJobLog('migrate')">Download Log Migrasi</button></div>
+      <div id="migrateStatus" class="status">Pilih preset di menu Export, lalu jalankan migrasi.</div>
+      <div class="progress"><div id="migrateBar" class="bar"></div></div>
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>Model</th><th>Status</th><th>Exported</th><th>Imported</th><th>Error</th></tr></thead><tbody id="migrateRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="logs" class="section">
+    <div class="card">
+      <h2>Log & Riwayat</h2>
+      <div class="actions"><button class="ghost" onclick="downloadJobLog('all')">Download Semua Log</button><button class="danger" onclick="clearLogs()">Hapus Log Lokal</button></div>
+      <pre id="logbox">Belum ada log.</pre>
+    </div>
   </section>
 </main>
+
 <script>
-const $ = id => document.getElementById(id);
-const DEFAULT_ODOO = { url: 'https://edu-lokalmart.odoo.com', db: 'edu-lokalmart', username: 'sadjax@gmail.com' };
+const DEFAULT_ODOO = { url:'https://edu-lokalmart.odoo.com', db:'edu-lokalmart', username:'sadjax@gmail.com' };
+const IMPORT_PLAN = ['ir.model','ir.model.fields','ir.model.fields.selection','ir.model.access','ir.rule','res.company','res.partner.category','res.partner','product.category','product.public.category','uom.category','uom.uom','product.attribute','product.attribute.value','product.template','product.product','product.supplierinfo','account.group','account.account','account.tax.group','account.tax','account.journal','account.payment.term','account.analytic.plan','account.analytic.account','project.project','project.task.type','project.milestone','project.task','account.analytic.line','website','ir.ui.view','website.page','website.menu','ir.ui.menu','ir.actions.act_window','ir.attachment','photo_import_queue'];
 let PRESETS = {
-  schema: ['ir.model','ir.model.fields','ir.model.fields.selection','ir.ui.view','ir.ui.menu','ir.actions.act_window','ir.model.access','ir.rule'],
-  master: ['res.company','res.partner.category','res.partner','product.category','product.public.category','uom.category','uom.uom','product.attribute','product.attribute.value','product.template','product.product','product.supplierinfo'],
-  project: ['account.analytic.plan','account.analytic.account','project.project','project.task.type','project.milestone','project.task','account.analytic.line'],
-  accounting: ['account.group','account.account','account.tax.group','account.tax','account.journal','account.payment.term','account.analytic.plan','account.analytic.account'],
-  website: ['website','ir.ui.view','website.page','website.menu','ir.attachment']
+  schema:{key:'schema',label:'Schema & Custom Fields',models:['ir.model','ir.model.fields','ir.model.fields.selection','ir.ui.view','ir.ui.menu','ir.actions.act_window','ir.model.access','ir.rule']},
+  master:{key:'master',label:'Master Data, Produk & Foto',models:['res.company','res.partner.category','res.partner','product.category','product.public.category','uom.category','uom.uom','product.attribute','product.attribute.value','product.template','product.product','product.supplierinfo']},
+  project:{key:'project',label:'Project & Operasional',models:['account.analytic.plan','account.analytic.account','project.project','project.task.type','project.milestone','project.task','account.analytic.line']},
+  accounting:{key:'accounting',label:'Akuntansi Config',models:['account.group','account.account','account.tax.group','account.tax','account.journal','account.payment.term','account.analytic.plan','account.analytic.account']},
+  website:{key:'website',label:'Website Pages & QWeb',models:['website','ir.ui.view','website.page','website.menu','ir.attachment']},
+  full:{key:'full',label:'Semua Migration-Safe',models:[]}
 };
-let ARCHIVE_MODELS = [];
-let ARCHIVE_ITEMS = [];
-let ARCHIVE_CATEGORIES = [];
-let archiveJob = { running:false, stop:false, manifest:null, controller:null, rows:[] };
-function cleanUrl(raw) {
-  let v = String(raw || '').trim();
-  if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v.replace(/^\/+/, '');
-  return v.replace(/\/+$/, '');
-}
-function conn(prefix) {
-  return { url: cleanUrl($(prefix+'_url').value || DEFAULT_ODOO.url), db: ($(prefix+'_db').value || DEFAULT_ODOO.db).trim(), username: ($(prefix+'_user').value || DEFAULT_ODOO.username).trim(), password: $(prefix+'_pass').value };
-}
-function checkedPresetValues() { return [...document.querySelectorAll('input[name="preset"]:checked')].map(x => x.value); }
-function selectedProfiles() {
-  const values = checkedPresetValues();
-  if (!values.length) return ['master'];
-  return values.includes('full') ? ['full'] : values;
-}
-function selectedModels() {
-  const profiles = selectedProfiles();
-  if (profiles.includes('full')) {
-    const all = [];
-    ['schema','master','accounting','project','website'].forEach(k => all.push(...(PRESETS[k] || [])));
-    return [...new Set(all)];
-  }
-  const out = [];
-  profiles.forEach(k => out.push(...(PRESETS[k] || [])));
-  return [...new Set(out)];
-}
-function onPresetChange() {
-  const full = $('preset_full');
-  if (full.checked) {
-    document.querySelectorAll('input[name="preset"]').forEach(cb => { if (cb.value !== 'full') cb.checked = false; });
-  }
-  updateModelPreview();
-}
-function updateModelPreview() {
-  const profiles = selectedProfiles();
-  const models = selectedModels();
-  $('presetPills').innerHTML = profiles.map(p => '<span class="pill">'+escapeHtml(p)+'</span>').join('') + '<span class="pill">'+models.length+' model</span>';
-  $('modelPreview').textContent = models.join(', ');
-}
-function status(text, bad=false) { $('status').innerHTML = bad ? '<span class="bad">'+escapeHtml(text)+'</span>' : escapeHtml(text); }
-function archiveStatus(text, mode='') {
-  const cls = mode === 'bad' ? 'bad' : mode === 'ok' ? 'ok' : mode === 'warn' ? 'warn' : '';
-  $('archiveStatus').innerHTML = cls ? '<span class="'+cls+'">'+escapeHtml(text)+'</span>' : escapeHtml(text);
-}
-function log(obj) { $('log').textContent = JSON.stringify(obj, null, 2); }
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-async function parseApiResponse(res) {
-  const text = await res.text();
-  try {
-    const json = text ? JSON.parse(text) : {};
-    if (!res.ok && json.ok !== false) json.ok = false;
-    if (!res.ok && !json.error) json.error = 'HTTP '+res.status+' '+res.statusText;
-    return json;
-  } catch (err) {
-    return {
-      ok:false,
-      error:'Server mengembalikan non-JSON. Kemungkinan timeout/error Vercel: HTTP '+res.status+' '+res.statusText+' — '+text.slice(0, 220),
-      raw:text.slice(0, 1000)
-    };
-  }
-}
-async function call(action, extra={}, signal=null) {
-  status('Memproses '+action+'...');
-  const profiles = selectedProfiles();
-  const body = { action, source: conn('s'), target: conn('t'), payload: { profiles, profile: profiles.join(','), ...extra } };
-  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal });
-  const json = await parseApiResponse(res);
-  log(json);
-  status(json.ok ? 'Selesai: '+action : 'Gagal: '+(json.error || action), !json.ok);
-  return json;
-}
-async function testConn(which) {
-  const body = { action:'test_connection' };
-  body[which] = conn(which === 'source' ? 's' : 't');
-  body.source = body[which];
-  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const json = await parseApiResponse(res); log(json); status(json.ok ? 'Koneksi '+which+' berhasil.' : 'Koneksi gagal: '+json.error, !json.ok);
-}
-async function scanSelectedModels(){ await call('scan_models'); }
-async function fullAutopsy(){ await call('full_autopsy'); }
-async function gapReport(){ await call('target_gap_report'); }
-async function ensureXmlIds(){ await call('ensure_external_ids', { module:'lokalmart_mig', limit:500 }); }
-function downloadBase64(filename, base64, mime) {
-  const a = document.createElement('a'); a.href = 'data:'+mime+';base64,'+base64; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
-}
-function downloadText(filename, text, mime='application/json') {
-  const blob = new Blob([text], { type:mime });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
-}
-async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked, includeEmptySheets:$('includeEmptySheets')?.checked === true, stopOnError:false }); if(j.ok && j.base64) downloadBase64(j.filename, j.base64, j.mime); }
-async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked, includeEmptySheets:$('includeEmptySheets')?.checked === true, stopOnError:false }); if(j.ok && j.base64) downloadBase64(j.filename, j.base64, j.mime); }
-function cleanSheetNameClient(model) {
-  return String(model || 'sheet').replace(/[^a-zA-Z0-9_\.]/g, '_').slice(0, 31) || 'sheet';
-}
-function uniqueSheetNameClient(wb, preferred) {
-  const existing = new Set((wb.SheetNames || []).map(x => String(x).toLowerCase()));
-  let base = cleanSheetNameClient(preferred);
-  if (!existing.has(base.toLowerCase())) return base;
-  for (let i=2; i<1000; i++) {
-    const suffix = '_' + i;
-    const candidate = base.slice(0, Math.max(1, 31 - suffix.length)) + suffix;
-    if (!existing.has(candidate.toLowerCase())) return candidate;
-  }
-  return (base.slice(0, 24) + '_' + Date.now().toString(36)).slice(0,31);
-}
-function isTimeoutLike(message) {
-  return /504|timeout|timed out|FUNCTION_INVOCATION_TIMEOUT|non-JSON|AbortError|network/i.test(String(message || ''));
-}
-function retrySizes(initial) {
-  const n = Math.max(5, Number(initial || 50));
-  return [...new Set([n, 200, 100, 50, 25, 10, 5].filter(x => x <= Math.max(n, 5) && x >= 5))];
-}
-async function callForArchive(action, extra={}, timeoutMs=12000) {
-  archiveJob.controller = new AbortController();
-  const timer = setTimeout(() => archiveJob.controller.abort(), timeoutMs);
-  try {
-    return await call(action, extra, archiveJob.controller.signal);
-  } catch (err) {
-    return { ok:false, error:err.name === 'AbortError' ? 'Request dibatalkan/timeout di browser sebelum Vercel timeout.' : (err.message || String(err)) };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-async function exportModelXlsxWithRetry(row, model, offset, preferredBatchSize) {
-  let last = null;
-  for (const size of retrySizes(preferredBatchSize)) {
-    if (archiveJob.stop) return { result:{ ok:false, error:'Dihentikan user' }, batchSize:size };
-    const j = await callForArchive('export_model_xlsx', {
-      model,
-      category:row.category,
-      categoryLabel:row.categoryLabel,
-      offset,
-      limit:size,
-      batchSize:size,
-      maxLimit:500,
-      skipCount:true,
-      skipEmpty:true,
-      includeBinary:$('includeBinary').checked,
-      includeUnsafe:$('archiveUnsafe').checked,
-      rawAllFields:true,
-      ensureExternalIds:false,
-      syntheticExternalIds:true,
-      readChunkSize:20,
-      module:'lokalmart_mig'
-    });
-    last = j;
-    if (j.ok || j.skipped) return { result:j, batchSize:size };
-    if (!isTimeoutLike(j.error) || size <= 5) break;
-    row.status = 'retry batch '+size+' gagal → kecilkan batch';
-    row.error = j.error;
-    renderArchiveRows();
-    await new Promise(resolve => setTimeout(resolve, 400));
-  }
-  return { result:last || { ok:false, error:'Gagal tanpa response.' }, batchSize:5 };
-}
-async function exportModelRowsJsonWithRetry(row, model, offset, preferredBatchSize) {
-  let last = null;
-  for (const size of retrySizes(preferredBatchSize)) {
-    if (archiveJob.stop) return { result:{ ok:false, error:'Dihentikan user' }, batchSize:size };
-    const j = await callForArchive('export_model_rows_json', {
-      model,
-      category:row.category,
-      categoryLabel:row.categoryLabel,
-      offset,
-      limit:size,
-      batchSize:size,
-      maxLimit:200,
-      includeBinary:$('includeBinary').checked,
-      includeUnsafe:$('archiveUnsafe').checked,
-      rawAllFields:true,
-      ensureExternalIds:false,
-      syntheticExternalIds:true,
-      readChunkSize:20,
-      module:'lokalmart_mig'
-    }, 12000);
-    last = j;
-    if (j.ok) return { result:j, batchSize:size };
-    if (!isTimeoutLike(j.error) || size <= 5) break;
-    row.status = 'retry batch '+size+' gagal → kecilkan batch';
-    row.error = j.error;
-    renderArchiveRows();
-    await new Promise(resolve => setTimeout(resolve, 400));
-  }
-  return { result:last || { ok:false, error:'Gagal tanpa response.' }, batchSize:5 };
-}
-async function exportFullMultiSheet(){
-  if (!window.XLSX) return status('SheetJS/XLSX browser belum termuat. Cek koneksi internet/CDN, atau pakai export per model.', true);
-  if (archiveJob.running) return archiveStatus('Export masih berjalan.', 'warn');
-  if (!ARCHIVE_MODELS.length) await loadArchiveModels();
-  const selectedItems = selectedArchiveItems();
-  if (!selectedItems.length) return archiveStatus('Tidak ada model/kategori yang dipilih.', 'bad');
-
-  archiveJob = { running:true, stop:false, manifest:{ generated_at:new Date().toISOString(), format:'lokalmart-full-db-browser-multisheet-v1', source:conn('s'), files:[], errors:[] }, controller:null, rows:selectedItems.map(m => ({ model:m.model, category:m.category, categoryLabel:m.category_label, status:'menunggu', part:'-', rows:'-', file:'', error:'' })) };
-  $('stopArchiveBtn').disabled = false;
-  $('manifestBtn').disabled = true;
-  renderArchiveRows();
-  setArchiveProgress(0, archiveJob.rows.length);
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ generated_at:new Date().toISOString(), format:'lokalmart-migration-safe-multisheet-browser-v1', note:'Sheet data memakai nama technical model. Relasi memakai *_external_id dan *_external_ids. Importer membaca 00_import_order.' }]), '00_manifest');
-  const importOrder = [];
-  const report = [];
-  const baseBatchSize = Math.max(5, Math.min(Number($('archiveBatchSize').value || 50), 500));
-  let finishedModels = 0;
-
-  for (let i=0; i<archiveJob.rows.length; i++) {
-    const row = archiveJob.rows[i];
-    const model = row.model;
-    if (archiveJob.stop) { row.status = 'dihentikan'; break; }
-    row.status = 'loading'; row.part = 1; row.rows = 0; row.error = ''; renderArchiveRows();
-    archiveStatus('Membangun multi-sheet: '+row.category+' / '+model+' ('+(i+1)+'/'+archiveJob.rows.length+')...');
-    const allRows = [];
-    let offset = 0;
-    let activeBatch = baseBatchSize;
-    let part = 1;
-    while (!archiveJob.stop) {
-      const attempt = await exportModelRowsJsonWithRetry(row, model, offset, activeBatch);
-      const j = attempt.result;
-      activeBatch = attempt.batchSize;
-      if (!j.ok) {
-        row.status = 'error lanjut';
-        row.error = j.error || 'Gagal export model';
-        report.push({ model, category:row.category, status:'error_continue', error:row.error, rows:allRows.length });
-        archiveJob.manifest.errors.push({ model, category:row.category, error:row.error, offset, part });
-        break;
-      }
-      const rows = Array.isArray(j.rows) ? j.rows : [];
-      allRows.push(...rows);
-      row.rows = allRows.length;
-      row.part = part;
-      renderArchiveRows();
-      if (j.done || !rows.length) break;
-      offset = j.nextOffset;
-      part += 1;
-      await new Promise(resolve => setTimeout(resolve, 120));
-    }
-    if (allRows.length || $('includeEmptySheets').checked) {
-      const sheet = uniqueSheetNameClient(wb, model);
-      const sheetRows = allRows.length ? allRows : [{ _model:model, _note:'Tidak ada record.' }];
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sheetRows), sheet);
-      importOrder.push({ sequence: importOrder.length + 1, sheet, model, technical_sheet_name:model, category:row.category, category_label:row.categoryLabel, rows:allRows.length });
-      report.push({ model, sheet, category:row.category, status:row.error ? 'exported_with_prior_error' : 'exported', rows:allRows.length });
-      row.file = 'multi-sheet workbook';
-      if (!row.error) row.status = allRows.length ? 'selesai' : 'kosong/dibuat';
-    } else if (!row.error) {
-      row.status = 'kosong/dilewati';
-      report.push({ model, category:row.category, status:'skipped_empty', rows:0 });
-    }
-    finishedModels += 1;
-    setArchiveProgress(finishedModels, archiveJob.rows.length);
-    renderArchiveRows();
-    await new Promise(resolve => setTimeout(resolve, 180));
-  }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(importOrder.length ? importOrder : [{ sequence:0, sheet:'', model:'', rows:0 }]), uniqueSheetNameClient(wb, '00_import_order'));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(report.length ? report : [{ status:'empty' }]), uniqueSheetNameClient(wb, '99_export_report'));
-  const filename = 'lokalmart_full_database_multisheet_'+new Date().toISOString().slice(0,10)+'.xlsx';
-  XLSX.writeFile(wb, filename);
-  archiveJob.manifest.finished_at = new Date().toISOString();
-  archiveJob.manifest.stopped = archiveJob.stop;
-  archiveJob.manifest.files.push({ filename, status:'downloaded_by_browser', sheets:importOrder.length, report });
-  archiveJob.running = false;
-  archiveJob.controller = null;
-  $('stopArchiveBtn').disabled = true;
-  $('manifestBtn').disabled = false;
-  archiveStatus(archiveJob.stop ? 'Multi-sheet dihentikan. File berisi bagian yang sudah terkumpul.' : 'Multi-sheet selesai dan sudah diunduh.', archiveJob.stop ? 'warn' : 'ok');
-}
-function setArchiveProgress(done, total) {
-  const pct = total ? Math.round((done / total) * 100) : 0;
-  $('archiveProgressBar').style.width = Math.min(100, pct) + '%';
-}
-function renderArchiveRows() {
-  $('archiveRows').innerHTML = archiveJob.rows.map((r, i) => '<tr>'+
-    '<td>'+(i+1)+'</td>'+
-    '<td><span class="cat-badge">'+escapeHtml(r.category || '99_other')+'</span></td>'+
-    '<td class="mono">'+escapeHtml(r.model || '')+'</td>'+
-    '<td>'+escapeHtml(r.status || '')+'</td>'+
-    '<td>'+escapeHtml(r.part || '')+'</td>'+
-    '<td>'+escapeHtml(r.rows == null ? '' : r.rows)+'</td>'+
-    '<td class="mono">'+escapeHtml(r.file || '')+'</td>'+
-    '<td class="bad">'+escapeHtml(r.error || '')+'</td>'+
-  '</tr>').join('');
-}
-function renderArchiveCategoryFilters() {
-  if (!ARCHIVE_CATEGORIES.length) {
-    $('archiveCategoryFilters').innerHTML = '<span class="small">Belum ada kategori. Klik Muat Daftar Model Aman.</span>';
-    return;
-  }
-  $('archiveCategoryFilters').innerHTML = ARCHIVE_CATEGORIES.map(cat => '<label>'+
-    '<input type="checkbox" name="archiveCategory" value="'+escapeHtml(cat.key)+'" checked />'+
-    '<div><strong>'+escapeHtml(cat.key)+'</strong><span>'+escapeHtml(cat.label)+' · '+Number(cat.count || 0)+' model</span></div>'+
-  '</label>').join('');
-}
-function selectedArchiveItems() {
-  const checked = new Set([...document.querySelectorAll('input[name="archiveCategory"]:checked')].map(x => x.value));
-  const items = ARCHIVE_ITEMS.length ? ARCHIVE_ITEMS : ARCHIVE_MODELS.map(model => ({ model, category:'99_other', category_label:'Other Models' }));
-  return items.filter(item => !checked.size || checked.has(item.category));
-}
-async function loadArchiveModels() {
-  const j = await call('discover_archive_models', { modelLimit:Number($('archiveModelLimit').value || 100000), includeUnsafe:$('archiveUnsafe').checked, includeTransient:false });
-  if (j.ok) {
-    ARCHIVE_MODELS = j.models || [];
-    ARCHIVE_ITEMS = j.model_objects || ARCHIVE_MODELS.map(model => ({ model, category:'99_other', category_label:'Other Models' }));
-    ARCHIVE_CATEGORIES = j.categories || [];
-    archiveStatus('Daftar model siap: '+ARCHIVE_MODELS.length+' model aman, terbagi dalam '+ARCHIVE_CATEGORIES.length+' kategori.', 'ok');
-    renderArchiveCategoryFilters();
-    archiveJob.rows = ARCHIVE_ITEMS.map(m => ({ model:m.model, category:m.category, categoryLabel:m.category_label, status:'menunggu', part:'-', rows:'-', file:'', error:'' }));
-    renderArchiveRows();
-    log({ ok:true, categories:ARCHIVE_CATEGORIES, models:ARCHIVE_ITEMS });
-  }
-}
-async function startFullArchiveJob() {
-  if (archiveJob.running) return archiveStatus('Export masih berjalan.', 'warn');
-  if (!ARCHIVE_MODELS.length) await loadArchiveModels();
-  const selectedItems = selectedArchiveItems();
-  if (!selectedItems.length) return archiveStatus('Tidak ada model/kategori yang dipilih.', 'bad');
-  archiveJob = { running:true, stop:false, manifest:{ generated_at:new Date().toISOString(), format:'lokalmart-full-db-split-xlsx-v2-categorized', source:conn('s'), categories:ARCHIVE_CATEGORIES, files:[] }, controller:null, rows:selectedItems.map(m => ({ model:m.model, category:m.category, categoryLabel:m.category_label, status:'menunggu', part:'-', rows:'-', file:'', error:'' })) };
-  $('stopArchiveBtn').disabled = false;
-  $('manifestBtn').disabled = true;
-  renderArchiveRows();
-  setArchiveProgress(0, archiveJob.rows.length);
-  const batchSize = Math.max(5, Math.min(Number($('archiveBatchSize').value || 50), 500));
-  let finishedModels = 0;
-  try {
-    for (let i=0; i<archiveJob.rows.length; i++) {
-      const row = archiveJob.rows[i];
-      const model = row.model;
-      if (archiveJob.stop) { row.status = 'dihentikan'; break; }
-      row.status = 'loading'; row.part = 1; row.rows = 0; renderArchiveRows();
-      archiveStatus('Export '+row.category+' / '+model+' ('+(i+1)+'/'+archiveJob.rows.length+')...');
-      let offset = 0;
-      let part = 1;
-      let activeBatchSize = batchSize;
-      while (!archiveJob.stop) {
-        const attempt = await exportModelXlsxWithRetry(row, model, offset, activeBatchSize);
-        const j = attempt.result;
-        activeBatchSize = attempt.batchSize;
-        if (archiveJob.stop) { row.status = 'dihentikan'; break; }
-        if (!j.ok && !j.skipped) {
-          row.status = 'error lanjut';
-          row.error = j.error || 'Gagal export model';
-          archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, status:'error_continue', error:row.error, offset, part });
-          break;
-        }
-        if (j.skipped) {
-          row.status = offset > 0 ? 'selesai' : 'kosong/dilewati';
-          row.rows = Number(row.rows || 0);
-          archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, status:offset > 0 ? 'done_after_empty_batch' : 'skipped_empty', offset:j.offset, total:j.total, part:j.part, warnings:j.warnings || [] });
-          break;
-        }
-        if (j.rows > 0 && j.base64) {
-          downloadBase64(j.filename, j.base64, j.mime);
-          archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, filename:j.filename, offset:j.offset, limit:j.limit, rows:j.rows, total:j.total, part:j.part, batch_size:activeBatchSize, warnings:j.warnings || [] });
-          row.file = j.filename;
-        }
-        row.part = part;
-        row.rows = Number(row.rows || 0) + Number(j.rows || 0);
-        renderArchiveRows();
-        if (j.done || !j.rows) { row.status = row.error ? 'error lanjut' : 'selesai'; break; }
-        offset = j.nextOffset;
-        part += 1;
-      }
-      if (!row.error && row.status !== 'dihentikan' && row.status !== 'kosong/dilewati') row.status = 'selesai';
-      finishedModels += 1;
-      setArchiveProgress(finishedModels, archiveJob.rows.length);
-      renderArchiveRows();
-      await new Promise(resolve => setTimeout(resolve, 350));
-      if (archiveJob.stop) break;
-    }
-    archiveJob.manifest.finished_at = new Date().toISOString();
-    archiveJob.manifest.stopped = archiveJob.stop;
-    archiveStatus(archiveJob.stop ? 'Export dihentikan. Manifest tetap bisa diunduh untuk file yang sudah jadi.' : 'Export selesai. Unduh manifest untuk daftar file.', archiveJob.stop ? 'warn' : 'ok');
-  } catch (err) {
-    archiveStatus('Export gagal: '+(err.message || err), 'bad');
-    log({ ok:false, error:err.message || String(err), manifest:archiveJob.manifest });
-  } finally {
-    archiveJob.running = false;
-    archiveJob.controller = null;
-    $('stopArchiveBtn').disabled = true;
-    $('manifestBtn').disabled = false;
-  }
-}
-function stopFullArchiveJob() {
-  archiveJob.stop = true;
-  if (archiveJob.controller) archiveJob.controller.abort();
-  archiveStatus('Permintaan stop dikirim. Request yang sedang berjalan akan dibatalkan lalu loop berhenti.', 'warn');
-}
-function downloadArchiveManifest() {
-  if (!archiveJob.manifest) return archiveStatus('Manifest belum tersedia.', 'bad');
-  downloadText('lokalmart_full_database_manifest_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(archiveJob.manifest, null, 2));
-}
-function readFileBase64(file) { return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
-async function importPreview(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_preview_xlsx', { fileBase64:b64 }); }
-async function importRun(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_xlsx', { fileBase64:b64, maxRowsPerSheet: Number($('maxRows').value || 500), stopOnError:false }); }
-async function importImages(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_product_images', { fileBase64:b64, maxRows: Number($('maxRows').value || 300), maxImageBytes: 5*1024*1024, timeoutMs: 15000, stopOnError:false }); }
-async function validateXml(){ await call('validate_qweb_xml', { xml: $('xmlbox').value }); }
-async function loadPresetsFromApi() {
-  try {
-    const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'model_presets' }) });
-    const json = await parseApiResponse(res);
-    if (json.ok && json.presets) {
-      for (const [key, preset] of Object.entries(json.presets)) {
-        if (key !== 'full' && Array.isArray(preset.models)) PRESETS[key] = preset.models;
-      }
-      if (Array.isArray(json.archive_categories)) {
-        ARCHIVE_CATEGORIES = json.archive_categories.map(cat => ({ ...cat, count: 0 }));
-        renderArchiveCategoryFilters();
-      }
-      updateModelPreview();
-    }
-  } catch (_) {}
-}
-updateModelPreview();
-loadPresetsFromApi();
+let ARCHIVE_ITEMS = []; let ARCHIVE_CATEGORIES = [];
+let importJob = newJob('import'), exportJob = newJob('export'), migrateJob = newJob('migrate');
+let LAST_IMPORT_FILE = null;
+function $(id){return document.getElementById(id)}
+function newJob(type){return {type,running:false,stop:false,rows:[],log:[],manifest:{generated_at:new Date().toISOString(),type,items:[]}}}
+function now(){return new Date().toISOString()}
+function normalizeUrl(url){let v=String(url||'').trim(); if(!v) return DEFAULT_ODOO.url; if(!/^https?:\/\//i.test(v)) v='https://'+v; return v.replace(/\/+$/,'')}
+function conn(prefix){return {url:normalizeUrl($(prefix+'_url').value),db:($(prefix+'_db').value||DEFAULT_ODOO.db).trim(),username:($(prefix+'_user').value||DEFAULT_ODOO.username).trim(),password:$(prefix+'_pass').value}}
+function source(){return conn('s')} function target(){return conn('t')}
+function openTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));$(id).classList.add('active')}
+function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+async function parseApiResponse(res){const text=await res.text();let json;try{json=JSON.parse(text)}catch(e){return {ok:false,error:'Server mengembalikan non-JSON. Kemungkinan timeout/error Vercel: HTTP '+res.status+' — '+text.slice(0,220)}} if(!res.ok&&json.ok!==false) json.ok=false; if(!json.ok&& !json.error) json.error='HTTP '+res.status; return json}
+async function api(action,payload={},kind='source'){const body={action,payload,source:source(),target:target(),connection:kind==='target'?target():source()}; const res=await fetch('/api/odoo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); const json=await parseApiResponse(res); addLog({time:now(),action,ok:json.ok,error:json.error||'',summary:summarizeJson(json)}); return json}
+function summarizeJson(j){try{return JSON.stringify(j).slice(0,500)}catch(e){return String(j).slice(0,500)}}
+function addLog(item){const arr=JSON.parse(localStorage.getItem('lmb_logs')||'[]');arr.unshift(item);localStorage.setItem('lmb_logs',JSON.stringify(arr.slice(0,500)));renderLogs()}
+function renderLogs(){const arr=JSON.parse(localStorage.getItem('lmb_logs')||'[]');$('logbox').textContent=arr.length?JSON.stringify(arr,null,2):'Belum ada log.'}
+function setStatus(id,msg,type=''){const el=$(id); if(!el) return; el.innerHTML='<span class="'+type+'">'+escapeHtml(msg)+'</span>'}
+function setBar(id,done,total){const pct=total?Math.round(done*100/total):0;$(id).style.width=Math.max(0,Math.min(100,pct))+'%'}
+function copySourceToTarget(){['url','db','user','pass'].forEach(k=>{$('t_'+k).value=$('s_'+k).value});setStatus('targetStatus','Target disamakan dengan source. Hati-hati jangan import besar ke database yang sama.','warn')}
+function saveSettings(){localStorage.setItem('lmb_settings',JSON.stringify({s:{url:$('s_url').value,db:$('s_db').value,user:$('s_user').value},t:{url:$('t_url').value,db:$('t_db').value,user:$('t_user').value}}));setStatus('targetStatus','URL/database/email tersimpan di browser ini. Password/API key tidak disimpan.','ok')}
+function loadSettings(){try{const s=JSON.parse(localStorage.getItem('lmb_settings')||'{}'); if(s.s){$('s_url').value=s.s.url||DEFAULT_ODOO.url;$('s_db').value=s.s.db||DEFAULT_ODOO.db;$('s_user').value=s.s.user||DEFAULT_ODOO.username} if(s.t){$('t_url').value=s.t.url||DEFAULT_ODOO.url;$('t_db').value=s.t.db||DEFAULT_ODOO.db;$('t_user').value=s.t.user||DEFAULT_ODOO.username}}catch(e){}}
+async function testConn(kind){const j=await api('test_connection',{},kind==='target'?'target':'source');setStatus(kind==='target'?'targetStatus':'sourceStatus',j.ok?'Koneksi berhasil. UID '+j.uid:'Koneksi gagal: '+(j.error||'unknown'),j.ok?'ok':'bad')}
+function selectedProfiles(){const vals=[...document.querySelectorAll('input[name=preset]:checked')].map(x=>x.value);return vals.length?vals:['master']}
+function selectedModels(){const profiles=selectedProfiles(); if(profiles.includes('full')) return unique(Object.values(PRESETS).flatMap(p=>p.key==='full'?[]:(p.models||[]))); return unique(profiles.flatMap(p=>PRESETS[p]?.models||[])).sort((a,b)=>modelOrder(a)-modelOrder(b)||a.localeCompare(b))}
+function modelOrder(m){const i=IMPORT_PLAN.indexOf(m); return i<0?9999:i}
+function unique(arr){return [...new Set((arr||[]).filter(Boolean))]}
+function renderPresetCards(){const box=$('presetCards');box.innerHTML=Object.values(PRESETS).map(p=>'<label class="choice"><input type="checkbox" name="preset" value="'+escapeHtml(p.key)+'" '+(p.key==='master'?'checked':'')+' onchange="renderSelectedModels()"><div><strong>'+escapeHtml(p.label)+'</strong><span>'+escapeHtml((p.models||[]).length+' model otomatis')+'</span></div></label>').join('');renderSelectedModels()}
+function renderSelectedModels(){const models=selectedModels();$('selectedModelBox').innerHTML='<b>'+models.length+' model dipilih:</b><br><span class="mono">'+escapeHtml(models.join(', '))+'</span>'}
+async function loadPresetModels(){const j=await api('model_presets',{}); if(j.ok&&j.presets){Object.entries(j.presets).forEach(([k,v])=>{PRESETS[k]={key:k,label:v.label||k,models:v.models||[]}});renderPresetCards();setStatus('exportStatus','Preset dimuat dari backend.','ok')}else setStatus('exportStatus','Gagal memuat preset: '+(j.error||''),'bad')}
+async function checkSelectedModels(){const j=await api('scan_models',{models:selectedModels()});setStatus('exportStatus',j.ok?'Cek model selesai. Lihat Log & Riwayat.':'Cek model gagal: '+j.error,j.ok?'ok':'bad')}
+async function fullAutopsy(){const j=await api('full_autopsy',{models:selectedModels(),includeBinary:$('expBinary')?.checked});setStatus('exportStatus',j.ok?'Full autopsy selesai. Lihat Log.':'Full autopsy gagal: '+j.error,j.ok?'ok':'bad')}
+async function gapReport(){const j=await api('target_gap_report',{models:selectedModels()});const msg=j.ok?'Gap report selesai. '+((j.result?.gaps||[]).length)+' gap ditemukan.':'Gap report gagal: '+j.error;setStatus('exportStatus',msg,j.ok?'ok':'bad');setStatus('migrateStatus',msg,j.ok?'ok':'bad')}
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
+function workbookFromFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>{try{resolve(XLSX.read(new Uint8Array(e.target.result),{type:'array'}))}catch(err){reject(err)}};r.onerror=reject;r.readAsArrayBuffer(file)})}
+function rowsFromSheet(ws){return XLSX.utils.sheet_to_json(ws,{defval:''}).filter(rowUseful)}
+function rowUseful(row){return Object.entries(row||{}).some(([k,v])=>!String(k).startsWith('__EMPTY')&&v!==undefined&&v!==null&&String(v).trim()!=='')}
+function normalizeSheetName(name){return String(name||'').trim().replace(/^_+/,'').toLowerCase()}
+function isMetaSheet(name){const n=String(name||'').trim(), k=normalizeSheetName(n);return !n||n.startsWith('00_')||n.startsWith('99_')||n.startsWith('_')||['readme','manifest','notes','import_order','photo_import_queue','image_import_queue'].includes(k)}
+function inferModel(sheet,rows){if(rows&&rows[0]&&rows[0]._model) return String(rows[0]._model).trim(); return String(sheet||'').trim().replace(/_/g,'.')}
+function importOrderFromWorkbook(wb){const candidates=wb.SheetNames.filter(n=>['00_import_order','import_order','_import_order'].includes(String(n).toLowerCase()));const bySheet=new Map(), byModel=new Map();if(candidates.length){rowsFromSheet(wb.Sheets[candidates[0]]).forEach(r=>{const seq=Number(r.sequence||r.seq||r.order||0)||0; if(r.sheet||r.sheet_name) bySheet.set(String(r.sheet||r.sheet_name),seq); if(r.model||r.technical_model||r.technical_sheet_name) byModel.set(String(r.model||r.technical_model||r.technical_sheet_name),seq)})}return {bySheet,byModel}}
+async function onImportFilePicked(){LAST_IMPORT_FILE=$('xlsx').files[0]||null; if(!LAST_IMPORT_FILE){setStatus('importStatus','Belum ada file.');return} setStatus('importStatus','File dipilih: '+LAST_IMPORT_FILE.name,'ok'); await localPreviewImport()}
+async function localPreviewImport(){const f=LAST_IMPORT_FILE||$('xlsx').files[0]; if(!f)return; const wb=await workbookFromFile(f); const order=importOrderFromWorkbook(wb); const items=wb.SheetNames.map(sheet=>{const rows=rowsFromSheet(wb.Sheets[sheet]);const model=inferModel(sheet,rows);const seq=order.bySheet.get(sheet)||order.byModel.get(model)||modelOrder(model);return {sheet,model,rows:rows.length,seq,status:isMetaSheet(sheet)?'meta/queue':'data'}}).sort((a,b)=>(a.seq-b.seq)||a.sheet.localeCompare(b.sheet));$('localPreview').innerHTML='<b>'+escapeHtml(f.name)+'</b><br>'+items.length+' sheet ditemukan. Sheet data akan diimport sesuai 00_import_order bila ada.';$('importPreviewRows').innerHTML=items.map((x,i)=>'<tr><td>'+ (i+1) +'</td><td class="mono">'+escapeHtml(x.sheet)+'</td><td class="mono">'+escapeHtml(x.model)+'</td><td>'+x.rows+'</td><td>'+escapeHtml(x.status)+'</td><td>'+(x.status==='meta/queue'?'Dilewati saat import data biasa':'Siap')+'</td></tr>').join('')}
+async function previewImportFile(){const f=LAST_IMPORT_FILE||$('xlsx').files[0]; if(!f)return setStatus('importStatus','Pilih file XLSX dulu.','bad'); await localPreviewImport(); const b64=await fileToDataUrl(f); const j=await api('import_preview_xlsx',{fileBase64:b64},'target'); setStatus('importStatus',j.ok?'Preview target selesai. Lihat tabel/log.':'Preview gagal: '+j.error,j.ok?'ok':'bad')}
+function makeSingleSheetWorkbookBase64(sheetName, rows){const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{_note:'empty'}]),safeSheetName(sheetName)); const out=XLSX.write(wb,{type:'base64',bookType:'xlsx',compression:true}); return 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'+out}
+function safeSheetName(name){let base=String(name||'sheet').replace(/[\\/?*\[\]:]/g,'_').slice(0,31)||'sheet';return base}
+async function startImportJob(){const f=LAST_IMPORT_FILE||$('xlsx').files[0]; if(!f)return setStatus('importStatus','Pilih file XLSX dulu.','bad'); if(importJob.running)return; importJob=newJob('import'); importJob.running=true; importJob.stop=false; $('stopImportBtn').disabled=false; const wb=await workbookFromFile(f); const order=importOrderFromWorkbook(wb); const all=wb.SheetNames.map(sheet=>{const rows=rowsFromSheet(wb.Sheets[sheet]);const model=inferModel(sheet,rows);const seq=order.bySheet.get(sheet)||order.byModel.get(model)||modelOrder(model);return {sheet,model,rows,seq}}).filter(x=>!isMetaSheet(x.sheet)&&x.rows.length).sort((a,b)=>(a.seq-b.seq)||a.sheet.localeCompare(b.sheet)); importJob.rows=all.map(x=>({sheet:x.sheet,model:x.model,status:'menunggu',rows:x.rows.length,created:0,updated:0,error:''})); renderImportJob(); setBar('importBar',0,all.length); const mode=document.querySelector('input[name=importMode]:checked')?.value||'upsert'; for(let i=0;i<all.length;i++){if(importJob.stop)break; const x=all[i], r=importJob.rows[i]; r.status='importing'; renderImportJob(); try{let rows=x.rows; if(mode==='create') rows=rows.map(row=>({...row,__action:'create'})); if(mode==='update') rows=rows.map(row=>({...row,__action:'update'})); const b64=makeSingleSheetWorkbookBase64(x.sheet,rows); const j=await api('import_xlsx',{fileBase64:b64,maxRowsPerSheet:Number($('impMaxRows').value||1000),stopOnError:!$('impContinue').checked},'target'); if(!j.ok) throw new Error(j.error||'Import gagal'); const rep=(j.result?.report||[])[0]||{}; r.status=(rep.errors&&rep.errors.length)?'partial':'selesai'; r.created=rep.created||0; r.updated=rep.updated||0; r.error=(rep.errors||[]).slice(0,2).map(e=>'row '+e.row+': '+e.error).join(' | '); importJob.manifest.items.push({sheet:x.sheet,model:x.model,status:r.status,report:rep}); }catch(err){r.status='error lanjut'; r.error=err.message||String(err); importJob.manifest.items.push({sheet:x.sheet,model:x.model,status:'error_continue',error:r.error}); if(!$('impContinue').checked) break} setBar('importBar',i+1,all.length); renderImportJob(); await sleep(250)} if(!importJob.stop && $('impPhotos').checked){await runImageImport(f)} importJob.running=false;$('stopImportBtn').disabled=true;setStatus('importStatus',importJob.stop?'Import dihentikan.':'Import selesai/partial. Download log untuk detail.',importJob.stop?'warn':'ok')}
+async function runImageImport(file){setStatus('importStatus','Memproses foto dari image_url...', 'warn'); const b64=await fileToDataUrl(file); const j=await api('import_product_images',{fileBase64:b64,maxRows:Number($('impMaxRows').value||1000),maxImageBytes:5*1024*1024,timeoutMs:15000,stopOnError:false},'target'); importJob.manifest.photo_import=j; setStatus('importStatus',j.ok?'Import foto selesai: updated '+(j.result?.updated||0):'Import foto gagal/partial: '+j.error,j.ok?'ok':'warn')}
+function stopImportJob(){importJob.stop=true;setStatus('importStatus','Stop diminta. Proses berhenti setelah request sheet berjalan selesai.','warn')}
+function renderImportJob(){$('importJobRows').innerHTML=importJob.rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td class="mono">'+escapeHtml(r.sheet)+'</td><td class="mono">'+escapeHtml(r.model)+'</td><td>'+escapeHtml(r.status)+'</td><td>'+escapeHtml(r.rows)+'</td><td>'+escapeHtml(r.created)+'</td><td>'+escapeHtml(r.updated)+'</td><td class="bad">'+escapeHtml(r.error)+'</td></tr>').join('')}
+async function loadArchiveModels(){const j=await api('discover_archive_models',{modelLimit:Number($('expModelLimit').value||100000),includeUnsafe:$('expUnsafe').checked,includeTransient:false}); if(j.ok){ARCHIVE_ITEMS=j.model_objects||[];ARCHIVE_CATEGORIES=j.categories||[];renderCategoryFilters();setStatus('exportStatus','Daftar model aman siap: '+ARCHIVE_ITEMS.length+' model.','ok')}else setStatus('exportStatus','Gagal muat model: '+j.error,'bad')}
+function renderCategoryFilters(){const box=$('categoryFilters');box.innerHTML=ARCHIVE_CATEGORIES.map(c=>'<label class="choice"><input type="checkbox" name="cat" value="'+escapeHtml(c.key)+'" checked><div><strong>'+escapeHtml(c.key)+'</strong><span>'+escapeHtml(c.label+' · '+(c.count||0)+' model')+'</span></div></label>').join('')}
+function selectedExportItems(){if($('expDiscoverAll').checked){const checked=new Set([...document.querySelectorAll('input[name=cat]:checked')].map(x=>x.value));return (ARCHIVE_ITEMS.length?ARCHIVE_ITEMS:selectedModels().map(m=>({model:m,category:'preset',category_label:'Preset'}))).filter(x=>!checked.size||checked.has(x.category))} return selectedModels().map(m=>({model:m,category:'preset',category_label:'Preset'}))}
+async function startExportJob(){const fmt=document.querySelector('input[name=exportFormat]:checked')?.value||'split'; if(fmt==='zip') return exportZipPackage(); if(fmt==='multisheet') return exportMultiSheetClient(); return exportSplitFiles()}
+function baseExportOptions(extra={}){return {...extra,includeBinary:$('expBinary').checked,ensureExternalIds:false,syntheticExternalIds:$('expSynthetic').checked,includeEmptySheets:!$('expSkipEmpty').checked,stopOnError:false,rawAllFields:true,readChunkSize:20,module:'lokalmart_mig'}}
+async function exportSplitFiles(){if(exportJob.running)return; if($('expDiscoverAll').checked && !ARCHIVE_ITEMS.length) await loadArchiveModels(); const items=selectedExportItems(); exportJob=newJob('export'); exportJob.running=true; exportJob.stop=false; $('stopExportBtn').disabled=false; exportJob.rows=items.map(x=>({model:x.model,category:x.category,status:'menunggu',part:'-',rows:0,file:'',error:''})); renderExportJob(); let doneModels=0; const batch=Number($('expBatch').value||50); for(let i=0;i<items.length;i++){const row=exportJob.rows[i]; if(exportJob.stop)break; let offset=0,part=1,activeBatch=batch; row.status='loading'; renderExportJob(); while(!exportJob.stop){try{const j=await api('export_model_xlsx',baseExportOptions({model:row.model,offset,limit:activeBatch,batchSize:activeBatch,skipCount:true,skipEmpty:$('expSkipEmpty').checked,category:row.category,categoryLabel:items[i].category_label})); if(!j.ok && !j.skipped) throw new Error(j.error||'Export gagal'); if(j.skipped){row.status=offset>0?'selesai':'kosong/dilewati'; exportJob.manifest.items.push({model:row.model,status:row.status,offset}); break} if(j.base64){downloadBase64(j.filename,j.base64,j.mime); row.file=j.filename; row.rows+=Number(j.rows||0); row.part=part; exportJob.manifest.items.push({model:row.model,filename:j.filename,rows:j.rows,part,offset});} if(j.done||!j.rows){row.status='selesai';break} offset=j.nextOffset; part++; renderExportJob(); await sleep(250)}catch(err){row.error=err.message||String(err); if(activeBatch>5){activeBatch=Math.max(5,Math.floor(activeBatch/2)); row.status='retry batch '+activeBatch; renderExportJob(); continue} row.status='error lanjut'; exportJob.manifest.items.push({model:row.model,status:'error_continue',error:row.error}); break}} doneModels++; setBar('exportBar',doneModels,items.length); renderExportJob(); await sleep(250)} exportJob.running=false;$('stopExportBtn').disabled=true;setStatus('exportStatus',exportJob.stop?'Export dihentikan.':'Export selesai/partial.','ok')}
+async function exportMultiSheetClient(){if(exportJob.running)return; if($('expDiscoverAll').checked && !ARCHIVE_ITEMS.length) await loadArchiveModels(); const items=selectedExportItems(); const wb=XLSX.utils.book_new(); const manifest=[{generated_at:now(),format:'lokalmart-migration-console-multisheet-v3',source_url:source().url,source_db:source().db,note:'Sheet data memakai technical model. Relasi many2one/many2many memakai *_external_id / *_external_ids. Importer membaca 00_import_order.'}]; XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(manifest),'00_manifest'); const importOrder=[], relationMap=[], report=[]; exportJob=newJob('export'); exportJob.running=true; exportJob.stop=false; $('stopExportBtn').disabled=false; exportJob.rows=items.map(x=>({model:x.model,category:x.category,status:'menunggu',part:'-',rows:0,file:'multi-sheet',error:''})); renderExportJob(); const batch=Number($('expBatch').value||50); for(let i=0;i<items.length;i++){const item=items[i], r=exportJob.rows[i]; if(exportJob.stop)break; let offset=0, rows=[], activeBatch=batch, part=1; r.status='collecting'; renderExportJob(); while(!exportJob.stop){try{const j=await api('export_model_rows_json',baseExportOptions({model:item.model,offset,limit:activeBatch,batchSize:activeBatch,category:item.category,categoryLabel:item.category_label})); if(!j.ok) throw new Error(j.error||'Gagal export rows'); if(j.rows&&j.rows.length){rows=rows.concat(j.rows); r.rows=rows.length; r.part=part; renderExportJob();} if(j.done||!j.rowCount) break; offset=j.nextOffset; part++; await sleep(120)}catch(err){r.error=err.message||String(err); if(activeBatch>5){activeBatch=Math.max(5,Math.floor(activeBatch/2)); r.status='retry batch '+activeBatch; renderExportJob(); continue} r.status='error lanjut'; report.push({model:item.model,status:'error_continue',error:r.error}); break}} if(rows.length||!$('expSkipEmpty').checked){const sheet=uniqueSheetName(wb,item.model); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{_model:item.model,_note:'Tidak ada record.'}]),sheet); importOrder.push({sequence:importOrder.length+1,sheet,model:item.model,technical_sheet_name:item.model,category:item.category,rows:rows.length,import_mode:'upsert'}); relationMap.push(...relationMapFromRows(item.model,rows)); report.push({model:item.model,sheet,rows:rows.length,status:r.error?'error_continue':'exported',error:r.error||''}); r.status=r.error?'error lanjut':'selesai'} else {r.status='kosong/dilewati'; report.push({model:item.model,rows:0,status:'skipped_empty'})} setBar('exportBar',i+1,items.length); renderExportJob(); await sleep(150)} XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(importOrder.length?importOrder:[{sequence:0,sheet:'',model:'',rows:0}]),uniqueSheetName(wb,'00_import_order')); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(relationMap.length?relationMap:[{model:'',field:'',export_column:'',relation_type:''}]),uniqueSheetName(wb,'00_relation_map')); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(report.length?report:[{status:'empty'}]),uniqueSheetName(wb,'99_export_report')); const filename='lokalmart_export_multisheet_'+new Date().toISOString().slice(0,10)+'.xlsx'; XLSX.writeFile(wb,filename); exportJob.manifest.items=report; exportJob.running=false;$('stopExportBtn').disabled=true;setStatus('exportStatus',exportJob.stop?'Multi-sheet dihentikan, file partial diunduh.':'Multi-sheet selesai diunduh.','ok')}
+function relationMapFromRows(model,rows){const cols=new Set(); rows.slice(0,20).forEach(r=>Object.keys(r).forEach(k=>{if(k.endsWith('_external_id')||k.endsWith('_external_ids')) cols.add(k)})); return [...cols].map(col=>{const many=col.endsWith('_external_ids'); return {model,field:col.replace(/_external_ids?$/,''),export_column:col,relation_type:many?'many2many':'many2one',relation_model:'resolved_by_external_id'}})}
+function uniqueSheetName(wb, preferred){let base=safeSheetName(preferred), existing=new Set(wb.SheetNames.map(x=>x.toLowerCase())); if(!existing.has(base.toLowerCase()))return base; for(let i=2;i<999;i++){let sfx='_'+i;let cand=base.slice(0,31-sfx.length)+sfx;if(!existing.has(cand.toLowerCase()))return cand}return base.slice(0,25)+'_'+Date.now().toString(36).slice(-4)}
+function stopExportJob(){exportJob.stop=true;setStatus('exportStatus','Stop diminta. Request berjalan akan selesai dulu lalu berhenti.','warn')}
+function renderExportJob(){$('exportJobRows').innerHTML=exportJob.rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td><span class="badge">'+escapeHtml(r.category||'')+'</span></td><td class="mono">'+escapeHtml(r.model)+'</td><td>'+escapeHtml(r.status)+'</td><td>'+escapeHtml(r.part)+'</td><td>'+escapeHtml(r.rows)+'</td><td class="mono">'+escapeHtml(r.file)+'</td><td class="bad">'+escapeHtml(r.error)+'</td></tr>').join('')}
+async function exportZipPackage(){const j=await api('export_migration_package_zip',baseExportOptions({profiles:selectedProfiles(),models:selectedModels(),includeEmptySheets:!$('expSkipEmpty').checked})); if(j.ok&&j.base64){downloadBase64(j.filename,j.base64,j.mime);setStatus('exportStatus','ZIP package berhasil diunduh.','ok')}else setStatus('exportStatus','ZIP gagal: '+(j.error||''),'bad')}
+async function startMigrationJob(){if(migrateJob.running)return; const models=selectedModels(); migrateJob=newJob('migrate'); migrateJob.running=true;migrateJob.stop=false;$('stopMigrateBtn').disabled=false;migrateJob.rows=models.map(m=>({model:m,status:'menunggu',exported:0,imported:0,error:''}));renderMigrateRows(); const batch=Number($('migBatch').value||50); for(let i=0;i<models.length;i++){const row=migrateJob.rows[i]; if(migrateJob.stop)break; let offset=0, activeBatch=batch; row.status='migrating'; renderMigrateRows(); while(!migrateJob.stop){try{const j=await api('export_model_rows_json',baseExportOptions({model:row.model,offset,limit:activeBatch,batchSize:activeBatch}), 'source'); if(!j.ok)throw new Error(j.error||'Export source gagal'); if(!j.rows||!j.rows.length){if(offset===0)row.status='kosong';break} row.exported+=j.rows.length; const b64=makeSingleSheetWorkbookBase64(row.model,j.rows); const imp=await api('import_xlsx',{fileBase64:b64,maxRowsPerSheet:activeBatch,stopOnError:!$('migContinue').checked},'target'); if(!imp.ok)throw new Error(imp.error||'Import target gagal'); const rep=(imp.result?.report||[])[0]||{}; row.imported+=(rep.created||0)+(rep.updated||0); if(j.done)break; offset=j.nextOffset; renderMigrateRows(); await sleep(150)}catch(err){row.error=err.message||String(err); if(activeBatch>5){activeBatch=Math.max(5,Math.floor(activeBatch/2)); row.status='retry '+activeBatch; renderMigrateRows(); continue} row.status='error lanjut'; if(!$('migContinue').checked) migrateJob.stop=true; break}} if(!row.error&&row.status!=='kosong') row.status='selesai'; setBar('migrateBar',i+1,models.length); renderMigrateRows(); await sleep(200)} migrateJob.running=false;$('stopMigrateBtn').disabled=true;setStatus('migrateStatus',migrateJob.stop?'Migrasi dihentikan/partial.':'Migrasi selesai/partial.','ok')}
+function stopMigrationJob(){migrateJob.stop=true;setStatus('migrateStatus','Stop migrasi diminta.','warn')}
+function renderMigrateRows(){$('migrateRows').innerHTML=migrateJob.rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td class="mono">'+escapeHtml(r.model)+'</td><td>'+escapeHtml(r.status)+'</td><td>'+escapeHtml(r.exported)+'</td><td>'+escapeHtml(r.imported)+'</td><td class="bad">'+escapeHtml(r.error)+'</td></tr>').join('')}
+function downloadBase64(filename,base64,mime){const a=document.createElement('a');a.href='data:'+(mime||'application/octet-stream')+';base64,'+base64;a.download=filename||'download.bin';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),100)}
+function downloadText(filename,text){const blob=new Blob([text],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},100)}
+function downloadJobLog(type){const data=type==='import'?importJob:type==='export'?exportJob:type==='migrate'?migrateJob:{importJob,exportJob,migrateJob,logs:JSON.parse(localStorage.getItem('lmb_logs')||'[]')};downloadText('lokalmart_'+type+'_log_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2))}
+function clearLogs(){localStorage.removeItem('lmb_logs');renderLogs()}
+function downloadXlsxRules(){const txt=`Lokalmart ChatGPT XLSX Standard v0.3.0\n\nWajib:\n- Sheet data memakai nama technical model: product.template, res.partner, project.task, ir.model.fields.\n- Kolom wajib: __action, _external_id, _model.\n- Many2one: field_name_external_id.\n- Many2many: field_name_external_ids, pisah koma.\n- Foto produk: image_url atau sheet photo_import_queue.\n- Multi-sheet wajib punya 00_import_order bila urutan relasi penting.\n- Row kosong tidak perlu dibuat.\n- Custom field Odoo Online wajib nama x_.\n`;downloadText('lokalmart_chatgpt_xlsx_rules_v0.3.0.txt',txt)}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+loadSettings();renderPresetCards();renderLogs();loadPresetModels().catch(()=>{});
 </script>
 </body>
 </html>

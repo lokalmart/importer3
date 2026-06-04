@@ -389,3 +389,17 @@ Kategori default:
 ```
 
 Frontend juga menampilkan checklist kategori setelah tombol **Muat Daftar Model Aman** diklik. Dengan begitu export bisa dijalankan hanya untuk kategori tertentu, misalnya hanya produk dan website. Manifest JSON menyimpan `category`, `category_label`, `model`, `filename`, `part`, `offset`, `rows`, dan `total`.
+
+
+## v0.3.0 - Migration Console UI Wizard
+
+Versi ini menambahkan UI yang lebih sederhana untuk penggunaan harian:
+
+- Import XLSX dari ChatGPT per sheet, dengan preview, progress, stop flag, dan log.
+- Export database sebagai banyak XLSX, satu XLSX multi-sheet, atau ZIP.
+- Full database export bisa lanjut walau satu model error/timeout.
+- Multi-sheet export memakai nama sheet technical model Odoo dan menyertakan `00_import_order` serta `00_relation_map`.
+- Pindah database Source → Target berjalan batch per model dengan External ID.
+- Default koneksi frontend: `https://edu-lokalmart.odoo.com`, DB `edu-lokalmart`, user `sadjax@gmail.com`. Password/API key tetap tidak di-hard-code.
+
+Lihat `docs/UI_WIZARD_V030.md` untuk detail penggunaan.

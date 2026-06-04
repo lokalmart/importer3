@@ -1,8 +1,8 @@
 {
   "name": "lokalmart-odoo-migration-builder",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Migration-safe Odoo 18 XLSX import/export builder for Lokalmart",
+  "description": "User-friendly Odoo migration console for ChatGPT XLSX import/export",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "vercel dev",
