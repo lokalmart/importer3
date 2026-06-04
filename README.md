@@ -1,5 +1,21 @@
 # Lokalmart Odoo Migration Builder
 
+## v0.2.0 - Anti-timeout full export
+
+Perbaikan utama untuk error Vercel `FUNCTION_INVOCATION_TIMEOUT` / HTTP 504:
+
+- Full Database Export tidak lagi bergantung pada request besar.
+- Default batch diturunkan menjadi 50 row, dan UI bisa otomatis retry ke 25/10/5 row jika satu batch timeout.
+- Jika satu model gagal, statusnya menjadi `error lanjut` dan model berikutnya tetap diproses.
+- `skipCount:true` dipakai pada export bertahap agar tidak membuang waktu menghitung semua record model besar.
+- `ensureExternalIds:false` + `syntheticExternalIds:true` dipakai untuk arsip, sehingga export tetap migration-safe tanpa menulis External ID ke database lama saat proses export.
+- Relasi tetap diekspor sebagai `*_external_id` / `*_external_ids`. Jika record relasi belum punya External ID asli, exporter memberi External ID sintetis stabil seperti `lokalmart_mig.res_partner_123`.
+- Tombol `Export 1 XLSX Multi-Sheet` sekarang dibangun bertahap di browser, bukan satu request server besar. Sheet data memakai nama technical model Odoo dan selalu membawa `_model`, sedangkan `00_import_order` memberi urutan import otomatis.
+- Row kosong/model kosong dilewati secara default.
+
+Mode yang paling aman untuk database besar tetap `Full Database Export Bertahap, Tanpa ZIP`. Mode 1 XLSX multi-sheet cocok jika ukuran database masih sanggup ditampung oleh memori browser.
+
+
 ## v0.1.9 - Fault-tolerant export dan multi-sheet import-safe
 
 Perbaikan utama:
