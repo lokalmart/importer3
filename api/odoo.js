@@ -75,7 +75,7 @@ module.exports = async function handler(req, res) {
     const action = String(body.action || '').trim();
     const payload = body.payload || {};
 
-    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.3.1' });
+    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.3.2' });
     if (action === 'model_presets') return send(res, 200, { ok: true, presets: presetSummary(), archive_categories: archiveCategorySummary() });
     if (action === 'validate_qweb_xml') return send(res, 200, { ok: true, validation: validateXml(payload.xml || body.xml || '') });
 

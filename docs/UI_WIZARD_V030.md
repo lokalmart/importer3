@@ -53,3 +53,12 @@ Setiap sheet data harus mengikuti aturan:
 - Default batch 50 row.
 - Jika error/timeout, UI akan mencoba batch lebih kecil sampai 5 row.
 - Jika tetap gagal, model ditandai `error lanjut` dan proses berjalan ke model berikutnya.
+
+
+## v0.3.2 - Fast import mode
+
+- Import rows memakai cache metadata fields_get per batch.
+- Resolve External ID dan display name memakai cache per request sehingga relasi berulang seperti kategori/vendor tidak dicari berulang-ulang.
+- Opsi default `Mode cepat: skip update existing` membuat importer tidak melakukan write ulang pada record yang External ID-nya sudah ada.
+- Opsi `Skip field custom yang sudah ada` membuat `ir.model.fields` tidak di-update ulang, karena update field custom sangat lambat di Odoo.
+- Context import menonaktifkan tracking/chatter untuk mengurangi overhead mail.thread.
