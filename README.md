@@ -266,7 +266,7 @@ Gunakan dokumen itu sebagai standar agar ChatGPT tidak membuat template XLSX bar
 ## Fix v0.1.4 — URL tidak boleh jatuh ke 127.0.0.1
 
 Jika muncul error `connect ECONNREFUSED 127.0.0.1:80`, penyebab paling umum adalah URL Odoo dikirim tanpa protocol, misalnya `edu-lokalmart.odoo.com` bukan `https://edu-lokalmart.odoo.com`. Mulai v0.1.4, frontend dan backend otomatis menambahkan `https://` dan menolak URL localhost agar request XML-RPC tidak salah arah.
-## v0.1.6 — Export Semua Isi Database
+## v0.1.7 — Export Semua Isi Database
 
 Versi ini menambahkan tombol **Export Semua Isi DB (ZIP)** dan action API:
 
@@ -297,3 +297,31 @@ Catatan:
 - `includeBinary:false` lebih aman untuk Vercel karena file tidak terlalu besar.
 - Aktifkan **Sertakan binary/foto/attachment** hanya bila ukuran database masih kecil atau kamu memang membutuhkan gambar/file di ZIP.
 - Untuk backup utuh SQL + filestore, tetap gunakan backup resmi Odoo dari database manager. Export ZIP dari aplikasi ini ditujukan untuk migrasi/import selektif dan audit, bukan pengganti 100% backup PostgreSQL Odoo.
+
+
+## v0.1.7 - Full Database Export Bertahap Tanpa ZIP
+
+Mode full database archive sekarang tidak lagi harus membuat satu ZIP besar. Frontend mengekspor model satu per satu sebagai banyak file XLSX terpisah. Setiap model bisa dipecah menjadi beberapa part berdasarkan batch rows, sehingga lebih aman untuk Vercel/serverless.
+
+Fitur baru:
+
+- `discover_archive_models`: mengambil daftar model aman untuk arsip database.
+- `export_model_xlsx`: mengekspor satu model dan satu batch/part menjadi satu file XLSX.
+- UI status loading per model.
+- Progress bar global.
+- Tombol Stop Export yang membatalkan request aktif dan menghentikan loop berikutnya.
+- Manifest JSON yang berisi daftar file XLSX yang sudah berhasil diunduh.
+
+Alur export semua isi database:
+
+```text
+1. Test Source
+2. Klik Muat Daftar Model Aman
+3. Atur Batch rows per file, misalnya 500
+4. Klik Mulai Export Semua Isi DB
+5. Browser akan mengunduh banyak file XLSX terpisah
+6. Jika perlu, klik Stop Export
+7. Klik Download Manifest untuk menyimpan daftar file yang sudah jadi
+```
+
+Catatan: browser bisa menanyakan izin download banyak file. Izinkan download multiple files dari domain Vercel importer.

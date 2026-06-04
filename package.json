@@ -1,6 +1,6 @@
 {
   "name": "lokalmart-odoo-migration-builder",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "Migration-safe Odoo 18 XLSX import/export builder for Lokalmart",
   "license": "UNLICENSED",

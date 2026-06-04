@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lokalmart Odoo Migration Builder</title>
   <style>
-    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; --soft:#fff7ed; }
+    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; --soft:#fff7ed; --warn:#ca8a04; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
     header { padding:28px 22px 18px; background:linear-gradient(135deg,#fff,#fff7ed); border-bottom:1px solid var(--line); }
@@ -22,10 +22,11 @@
     button { border:0; padding:11px 14px; border-radius:12px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
     button.secondary { background:#172033; }
     button.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    button.danger { background:var(--bad); }
     button:disabled { opacity:.6; cursor:not-allowed; }
     pre { white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#e2e8f0; padding:14px; border-radius:14px; overflow:auto; max-height:360px; font-size:12px; }
     .status { margin-top:12px; padding:10px 12px; border-radius:12px; background:#f8fafc; color:var(--muted); font-size:13px; }
-    .ok { color:var(--ok); } .bad { color:var(--bad); }
+    .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
     .small { font-size:12px; }
     .preset-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px; }
     .preset { display:flex; gap:10px; align-items:flex-start; padding:13px; border:1px solid var(--line); border-radius:15px; background:#fff; }
@@ -35,6 +36,12 @@
     .preset span { display:block; color:var(--muted); font-size:12px; line-height:1.45; margin-top:3px; }
     .model-preview { margin-top:12px; padding:12px; border:1px dashed #fdba74; background:var(--soft); border-radius:14px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:#7c2d12; max-height:150px; overflow:auto; }
     .pill { display:inline-block; padding:5px 9px; border-radius:999px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-size:12px; margin:2px; }
+    .progress-wrap { height:12px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin:10px 0; }
+    .progress-bar { height:100%; width:0%; background:var(--accent); transition:width .2s ease; }
+    .job-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:12px; }
+    .job-table th, .job-table td { border-bottom:1px solid var(--line); padding:8px 6px; text-align:left; vertical-align:top; }
+    .job-table th { color:var(--muted); font-weight:700; background:#fafafa; }
+    .mono { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     @media (max-width: 860px) { .grid, .preset-grid { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -42,7 +49,7 @@
 <header>
   <div class="wrap">
     <h1>Lokalmart Odoo Migration Builder</h1>
-    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, dan import foto produk dari <b>image_url</b>. Mulai v0.1.5 model tidak perlu diisi manual: pilih paket checklist.</p>
+    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, import foto produk dari <b>image_url</b>, dan full database export bertahap tanpa ZIP.</p>
   </div>
 </header>
 <main class="wrap">
@@ -69,26 +76,53 @@
     <h2>Pilih Paket Model Otomatis</h2>
     <p class="small">Tidak perlu mengisi payload models manual. Centang kebutuhan import/export, lalu sistem otomatis mengirim daftar model yang sesuai ke API.</p>
     <div class="preset-grid">
-      <label class="preset"><input type="checkbox" name="preset" value="schema" onchange="onPresetChange()" /><div><strong>Schema & Custom Fields</strong><span>Custom model, custom field, selection, QWeb/backend view, menu, access rights, dan record rules.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="master" checked onchange="onPresetChange()" /><div><strong>Master Data, Produk & Foto</strong><span>Company, kontak/vendor, kategori, UoM, attribute, produk, supplier info. Foto diproses lewat image_url.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="project" onchange="onPresetChange()" /><div><strong>Project & Operasional</strong><span>Project, stage, milestone, task, analytic account, analytic line, dan timesheet.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="schema" onchange="onPresetChange()" /><div><strong>Schema &amp; Custom Fields</strong><span>Custom model, custom field, selection, QWeb/backend view, menu, access rights, dan record rules.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="master" checked onchange="onPresetChange()" /><div><strong>Master Data, Produk &amp; Foto</strong><span>Company, kontak/vendor, kategori, UoM, attribute, produk, supplier info. Foto diproses lewat image_url.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="project" onchange="onPresetChange()" /><div><strong>Project &amp; Operasional</strong><span>Project, stage, milestone, task, analytic account, analytic line, dan timesheet.</span></div></label>
       <label class="preset"><input type="checkbox" name="preset" value="accounting" onchange="onPresetChange()" /><div><strong>Akuntansi Config</strong><span>Bagan akun, pajak, jurnal, payment terms, analytic plan, dan analytic account.</span></div></label>
-      <label class="preset"><input type="checkbox" name="preset" value="website" onchange="onPresetChange()" /><div><strong>Website Pages & QWeb</strong><span>Website, ir.ui.view/QWeb, website.page, website.menu, dan attachment website.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="website" onchange="onPresetChange()" /><div><strong>Website Pages &amp; QWeb</strong><span>Website, ir.ui.view/QWeb, website.page, website.menu, dan attachment website.</span></div></label>
       <label class="preset"><input type="checkbox" id="preset_full" name="preset" value="full" onchange="onPresetChange()" /><div><strong>Semua Migration-Safe</strong><span>Gabungan utama. Cocok untuk full autopsy/export, tetapi tetap import bertahap lebih aman.</span></div></label>
     </div>
     <div id="presetPills" style="margin-top:12px"></div>
     <div id="modelPreview" class="model-preview"></div>
-    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeBinary" /><div><strong>Sertakan binary/foto/attachment</strong><span>Aktifkan hanya jika butuh arsip gambar/file. File ZIP bisa besar dan rawan timeout pada Vercel.</span></div></label>
+    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeBinary" /><div><strong>Sertakan binary/foto/attachment</strong><span>Aktifkan hanya jika butuh arsip gambar/file. File bisa besar dan proses lebih lama.</span></div></label>
     <div class="actions">
       <button onclick="scanSelectedModels()" class="ghost">Cek Model Terpilih</button>
       <button onclick="fullAutopsy()">Full Autopsy Source</button>
       <button onclick="gapReport()" class="secondary">Gap Source vs Target</button>
       <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
-      <button onclick="exportXlsx()">Export XLSX</button>
+      <button onclick="exportXlsx()">Export XLSX Gabungan</button>
       <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
-      <button onclick="exportFullArchive()" class="secondary">Export Semua Isi DB (ZIP)</button>
     </div>
     <p class="small">Catatan: untuk database yang sama antara source dan target, gunakan scan/export dulu. Jangan import besar ke database yang sama kecuali memang ingin update data yang sudah punya External ID.</p>
+  </section>
+
+  <section class="card">
+    <h2>Full Database Export Bertahap, Tanpa ZIP</h2>
+    <p class="small">Mode ini mengekspor database sebagai banyak file XLSX terpisah per model/part. Proses berjalan satu per satu, status terlihat, dan bisa dihentikan. Ini lebih aman daripada membuat satu ZIP besar di serverless.</p>
+    <div class="grid" style="margin:0">
+      <div>
+        <label>Batch rows per file</label><input id="archiveBatchSize" type="number" value="500" min="50" max="5000" />
+      </div>
+      <div>
+        <label>Batas jumlah model ditemukan</label><input id="archiveModelLimit" type="number" value="100000" min="1" />
+      </div>
+    </div>
+    <label class="preset" style="margin-top:12px"><input type="checkbox" id="archiveUnsafe" /><div><strong>Sertakan model sistem berat/berisiko</strong><span>Normalnya jangan dicentang. Jika aktif, mail.message, bus, log, dan model teknis lain bisa membuat export sangat berat.</span></div></label>
+    <div class="actions">
+      <button onclick="loadArchiveModels()" class="ghost">Muat Daftar Model Aman</button>
+      <button onclick="startFullArchiveJob()">Mulai Export Semua Isi DB</button>
+      <button onclick="stopFullArchiveJob()" class="danger" id="stopArchiveBtn" disabled>Stop Export</button>
+      <button onclick="downloadArchiveManifest()" class="secondary" id="manifestBtn" disabled>Download Manifest</button>
+    </div>
+    <div class="progress-wrap"><div id="archiveProgressBar" class="progress-bar"></div></div>
+    <div id="archiveStatus" class="status">Belum ada job export.</div>
+    <div style="overflow:auto; max-height:360px">
+      <table class="job-table">
+        <thead><tr><th>#</th><th>Model</th><th>Status</th><th>Part</th><th>Rows</th><th>File</th><th>Error</th></tr></thead>
+        <tbody id="archiveRows"></tbody>
+      </table>
+    </div>
   </section>
 
   <div class="grid">
@@ -106,7 +140,7 @@
     <section class="card">
       <h2>Validator QWeb/XML</h2>
       <label>Tempel arch_db / QWeb</label>
-      <textarea id="xmlbox" placeholder="<template>...</template>"></textarea>
+      <textarea id="xmlbox" placeholder="&lt;template&gt;...&lt;/template&gt;"></textarea>
       <div class="actions"><button onclick="validateXml()" class="ghost">Validate XML</button></div>
     </section>
   </div>
@@ -127,6 +161,8 @@ let PRESETS = {
   accounting: ['account.group','account.account','account.tax.group','account.tax','account.journal','account.payment.term','account.analytic.plan','account.analytic.account'],
   website: ['website','ir.ui.view','website.page','website.menu','ir.attachment']
 };
+let ARCHIVE_MODELS = [];
+let archiveJob = { running:false, stop:false, manifest:null, controller:null, rows:[] };
 function cleanUrl(raw) {
   let v = String(raw || '').trim();
   if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v.replace(/^\/+/, '');
@@ -162,17 +198,21 @@ function onPresetChange() {
 function updateModelPreview() {
   const profiles = selectedProfiles();
   const models = selectedModels();
-  $('presetPills').innerHTML = profiles.map(p => '<span class="pill">'+p+'</span>').join('') + '<span class="pill">'+models.length+' model</span>';
+  $('presetPills').innerHTML = profiles.map(p => '<span class="pill">'+escapeHtml(p)+'</span>').join('') + '<span class="pill">'+models.length+' model</span>';
   $('modelPreview').textContent = models.join(', ');
 }
 function status(text, bad=false) { $('status').innerHTML = bad ? '<span class="bad">'+escapeHtml(text)+'</span>' : escapeHtml(text); }
+function archiveStatus(text, mode='') {
+  const cls = mode === 'bad' ? 'bad' : mode === 'ok' ? 'ok' : mode === 'warn' ? 'warn' : '';
+  $('archiveStatus').innerHTML = cls ? '<span class="'+cls+'">'+escapeHtml(text)+'</span>' : escapeHtml(text);
+}
 function log(obj) { $('log').textContent = JSON.stringify(obj, null, 2); }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-async function call(action, extra={}) {
+async function call(action, extra={}, signal=null) {
   status('Memproses '+action+'...');
   const profiles = selectedProfiles();
   const body = { action, source: conn('s'), target: conn('t'), payload: { profiles, profile: profiles.join(','), ...extra } };
-  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal });
   const json = await res.json();
   log(json);
   status(json.ok ? 'Selesai: '+action : 'Gagal: '+(json.error || action), !json.ok);
@@ -190,11 +230,110 @@ async function fullAutopsy(){ await call('full_autopsy'); }
 async function gapReport(){ await call('target_gap_report'); }
 async function ensureXmlIds(){ await call('ensure_external_ids', { module:'lokalmart_mig', limit:500 }); }
 function downloadBase64(filename, base64, mime) {
-  const a = document.createElement('a'); a.href = 'data:'+mime+';base64,'+base64; a.download = filename; a.click();
+  const a = document.createElement('a'); a.href = 'data:'+mime+';base64,'+base64; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+}
+function downloadText(filename, text, mime='application/json') {
+  const blob = new Blob([text], { type:mime });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
 }
 async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
 async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
-async function exportFullArchive(){ const j = await call('export_full_database_archive_zip', { ensureExternalIds:true, exportAll:true, discoverAllModels:true, includeBinary:$('includeBinary').checked, includeUnsafe:false }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+function setArchiveProgress(done, total) {
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  $('archiveProgressBar').style.width = Math.min(100, pct) + '%';
+}
+function renderArchiveRows() {
+  $('archiveRows').innerHTML = archiveJob.rows.map((r, i) => '<tr>'+
+    '<td>'+(i+1)+'</td>'+
+    '<td class="mono">'+escapeHtml(r.model || '')+'</td>'+
+    '<td>'+escapeHtml(r.status || '')+'</td>'+
+    '<td>'+escapeHtml(r.part || '')+'</td>'+
+    '<td>'+escapeHtml(r.rows == null ? '' : r.rows)+'</td>'+
+    '<td class="mono">'+escapeHtml(r.file || '')+'</td>'+
+    '<td class="bad">'+escapeHtml(r.error || '')+'</td>'+
+  '</tr>').join('');
+}
+async function loadArchiveModels() {
+  const j = await call('discover_archive_models', { modelLimit:Number($('archiveModelLimit').value || 100000), includeUnsafe:$('archiveUnsafe').checked, includeTransient:false });
+  if (j.ok) {
+    ARCHIVE_MODELS = j.models || [];
+    archiveStatus('Daftar model siap: '+ARCHIVE_MODELS.length+' model aman ditemukan.', 'ok');
+    archiveJob.rows = ARCHIVE_MODELS.map(m => ({ model:m, status:'menunggu', part:'-', rows:'-', file:'', error:'' }));
+    renderArchiveRows();
+    log({ ok:true, models:ARCHIVE_MODELS });
+  }
+}
+async function startFullArchiveJob() {
+  if (archiveJob.running) return archiveStatus('Export masih berjalan.', 'warn');
+  if (!ARCHIVE_MODELS.length) await loadArchiveModels();
+  if (!ARCHIVE_MODELS.length) return archiveStatus('Tidak ada model yang bisa diekspor.', 'bad');
+  archiveJob = { running:true, stop:false, manifest:{ generated_at:new Date().toISOString(), format:'lokalmart-full-db-split-xlsx-v1', source:conn('s'), files:[] }, controller:null, rows:ARCHIVE_MODELS.map(m => ({ model:m, status:'menunggu', part:'-', rows:'-', file:'', error:'' })) };
+  $('stopArchiveBtn').disabled = false;
+  $('manifestBtn').disabled = true;
+  renderArchiveRows();
+  setArchiveProgress(0, ARCHIVE_MODELS.length);
+  const batchSize = Math.max(50, Number($('archiveBatchSize').value || 500));
+  let finishedModels = 0;
+  try {
+    for (let i=0; i<ARCHIVE_MODELS.length; i++) {
+      const model = ARCHIVE_MODELS[i];
+      const row = archiveJob.rows[i];
+      if (archiveJob.stop) { row.status = 'dihentikan'; break; }
+      row.status = 'loading'; row.part = 1; row.rows = 0; renderArchiveRows();
+      archiveStatus('Export '+model+' ('+(i+1)+'/'+ARCHIVE_MODELS.length+')...');
+      let offset = 0;
+      let part = 1;
+      while (!archiveJob.stop) {
+        archiveJob.controller = new AbortController();
+        let j;
+        try {
+          j = await call('export_model_xlsx', { model, offset, limit:batchSize, batchSize, includeBinary:$('includeBinary').checked, includeUnsafe:$('archiveUnsafe').checked, rawAllFields:true, ensureExternalIds:true, module:'lokalmart_mig' }, archiveJob.controller.signal);
+        } catch (err) {
+          if (archiveJob.stop || err.name === 'AbortError') { row.status = 'dihentikan'; break; }
+          throw err;
+        }
+        if (!j.ok) { row.status = 'error'; row.error = j.error || 'Gagal export model'; break; }
+        if (j.rows > 0 || offset === 0) {
+          downloadBase64(j.filename, j.base64, j.mime);
+          archiveJob.manifest.files.push({ model, filename:j.filename, offset:j.offset, limit:j.limit, rows:j.rows, total:j.total, part:j.part, warnings:j.warnings || [] });
+          row.file = j.filename;
+        }
+        row.part = part;
+        row.rows = Number(row.rows || 0) + Number(j.rows || 0);
+        renderArchiveRows();
+        if (j.done || !j.rows) { row.status = row.error ? 'error' : 'selesai'; break; }
+        offset = j.nextOffset;
+        part += 1;
+      }
+      if (!row.error && row.status !== 'dihentikan') row.status = 'selesai';
+      finishedModels += 1;
+      setArchiveProgress(finishedModels, ARCHIVE_MODELS.length);
+      renderArchiveRows();
+      await new Promise(resolve => setTimeout(resolve, 350));
+      if (archiveJob.stop) break;
+    }
+    archiveJob.manifest.finished_at = new Date().toISOString();
+    archiveJob.manifest.stopped = archiveJob.stop;
+    archiveStatus(archiveJob.stop ? 'Export dihentikan. Manifest tetap bisa diunduh untuk file yang sudah jadi.' : 'Export selesai. Unduh manifest untuk daftar file.', archiveJob.stop ? 'warn' : 'ok');
+  } catch (err) {
+    archiveStatus('Export gagal: '+(err.message || err), 'bad');
+    log({ ok:false, error:err.message || String(err), manifest:archiveJob.manifest });
+  } finally {
+    archiveJob.running = false;
+    archiveJob.controller = null;
+    $('stopArchiveBtn').disabled = true;
+    $('manifestBtn').disabled = false;
+  }
+}
+function stopFullArchiveJob() {
+  archiveJob.stop = true;
+  if (archiveJob.controller) archiveJob.controller.abort();
+  archiveStatus('Permintaan stop dikirim. Request yang sedang berjalan akan dibatalkan lalu loop berhenti.', 'warn');
+}
+function downloadArchiveManifest() {
+  if (!archiveJob.manifest) return archiveStatus('Manifest belum tersedia.', 'bad');
+  downloadText('lokalmart_full_database_manifest_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(archiveJob.manifest, null, 2));
+}
 function readFileBase64(file) { return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
 async function importPreview(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_preview_xlsx', { fileBase64:b64 }); }
 async function importRun(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_xlsx', { fileBase64:b64, maxRowsPerSheet: Number($('maxRows').value || 500), stopOnError:false }); }
