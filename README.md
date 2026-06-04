@@ -391,7 +391,7 @@ Kategori default:
 Frontend juga menampilkan checklist kategori setelah tombol **Muat Daftar Model Aman** diklik. Dengan begitu export bisa dijalankan hanya untuk kategori tertentu, misalnya hanya produk dan website. Manifest JSON menyimpan `category`, `category_label`, `model`, `filename`, `part`, `offset`, `rows`, dan `total`.
 
 
-## v0.3.0 - Migration Console UI Wizard
+## v0.3.1 - Migration Console UI Wizard
 
 Versi ini menambahkan UI yang lebih sederhana untuk penggunaan harian:
 

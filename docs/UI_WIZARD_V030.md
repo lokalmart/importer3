@@ -1,4 +1,4 @@
-# Lokalmart Odoo Migration Console v0.3.0
+# Lokalmart Odoo Migration Console v0.3.1
 
 Versi ini menambahkan UI wizard di atas engine v0.2.0 tanpa menghapus endpoint yang sudah berjalan.
 
