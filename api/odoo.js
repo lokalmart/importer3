@@ -3,7 +3,7 @@ const { fullAutopsy, scanModels, modelExists } = require('../lib/scanner');
 const { ensureExternalIdsForModel } = require('../lib/externalId');
 const { exportMigrationXlsx, exportMigrationPackageZip, exportFullDatabaseArchiveZip, exportSingleModelXlsx, discoverArchiveModels, countModelRows } = require('../lib/exporter');
 const { importPreview, importWorkbook, importProductImagesFromWorkbook } = require('../lib/importer');
-const { exportModelsForProfile, exportModelsForProfiles, presetSummary } = require('../lib/modelProfiles');
+const { exportModelsForProfile, exportModelsForProfiles, presetSummary, archiveCategorySummary, categorizeModels } = require('../lib/modelProfiles');
 const { validateXml } = require('../lib/validators');
 const { flattenError } = require('../lib/utils');
 
@@ -75,8 +75,8 @@ module.exports = async function handler(req, res) {
     const action = String(body.action || '').trim();
     const payload = body.payload || {};
 
-    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.7' });
-    if (action === 'model_presets') return send(res, 200, { ok: true, presets: presetSummary() });
+    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.8' });
+    if (action === 'model_presets') return send(res, 200, { ok: true, presets: presetSummary(), archive_categories: archiveCategorySummary() });
     if (action === 'validate_qweb_xml') return send(res, 200, { ok: true, validation: validateXml(payload.xml || body.xml || '') });
 
     if (!action) return send(res, 400, { ok: false, error: 'action wajib diisi.' });
@@ -126,7 +126,12 @@ module.exports = async function handler(req, res) {
     if (action === 'discover_archive_models') {
       const client = makeClient(pickConnection(body, 'source'));
       const models = await discoverArchiveModels(client, payload);
-      return send(res, 200, { ok: true, models, count: models.length });
+      const model_objects = categorizeModels(models);
+      const categories = archiveCategorySummary().map(cat => ({
+        ...cat,
+        count: model_objects.filter(m => m.category === cat.key).length
+      })).filter(cat => cat.count > 0);
+      return send(res, 200, { ok: true, models, model_objects, categories, count: models.length });
     }
 
     if (action === 'count_model_rows') {

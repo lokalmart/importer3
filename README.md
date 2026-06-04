@@ -266,7 +266,7 @@ Gunakan dokumen itu sebagai standar agar ChatGPT tidak membuat template XLSX bar
 ## Fix v0.1.4 — URL tidak boleh jatuh ke 127.0.0.1
 
 Jika muncul error `connect ECONNREFUSED 127.0.0.1:80`, penyebab paling umum adalah URL Odoo dikirim tanpa protocol, misalnya `edu-lokalmart.odoo.com` bukan `https://edu-lokalmart.odoo.com`. Mulai v0.1.4, frontend dan backend otomatis menambahkan `https://` dan menolak URL localhost agar request XML-RPC tidak salah arah.
-## v0.1.7 — Export Semua Isi Database
+## v0.1.8 — Export Semua Isi Database
 
 Versi ini menambahkan tombol **Export Semua Isi DB (ZIP)** dan action API:
 
@@ -299,7 +299,7 @@ Catatan:
 - Untuk backup utuh SQL + filestore, tetap gunakan backup resmi Odoo dari database manager. Export ZIP dari aplikasi ini ditujukan untuk migrasi/import selektif dan audit, bukan pengganti 100% backup PostgreSQL Odoo.
 
 
-## v0.1.7 - Full Database Export Bertahap Tanpa ZIP
+## v0.1.8 - Full Database Export Bertahap Tanpa ZIP + Kategori
 
 Mode full database archive sekarang tidak lagi harus membuat satu ZIP besar. Frontend mengekspor model satu per satu sebagai banyak file XLSX terpisah. Setiap model bisa dipecah menjadi beberapa part berdasarkan batch rows, sehingga lebih aman untuk Vercel/serverless.
 
@@ -325,3 +325,37 @@ Alur export semua isi database:
 ```
 
 Catatan: browser bisa menanyakan izin download banyak file. Izinkan download multiple files dari domain Vercel importer.
+
+
+## v0.1.8 - Kategorisasi File XLSX Full Database
+
+Mode full database export bertahap sekarang mengelompokkan file XLSX berdasarkan kategori model agar ratusan file tidak tercampur. Karena browser tidak dapat membuat folder lokal secara andal tanpa izin File System Access API, mekanisme yang dipakai adalah **prefix kategori pada nama file** dan **manifest berkategori**.
+
+Contoh nama file:
+
+```text
+00_schema__ir.model.fields__part_0001__2026-06-04.xlsx
+01_contacts_company__res.partner__part_0001__2026-06-04.xlsx
+02_products_inventory__product.template__part_0001__2026-06-04.xlsx
+03_accounting__account.account__part_0001__2026-06-04.xlsx
+04_project_operations__project.task__part_0001__2026-06-04.xlsx
+05_website_qweb__website.page__part_0001__2026-06-04.xlsx
+```
+
+Kategori default:
+
+```text
+00_schema
+01_contacts_company
+02_products_inventory
+03_accounting
+04_project_operations
+05_website_qweb
+06_sales_purchase
+07_mail_discuss
+08_marketing_events
+09_lokalmart_custom
+99_other
+```
+
+Frontend juga menampilkan checklist kategori setelah tombol **Muat Daftar Model Aman** diklik. Dengan begitu export bisa dijalankan hanya untuk kategori tertentu, misalnya hanya produk dan website. Manifest JSON menyimpan `category`, `category_label`, `model`, `filename`, `part`, `offset`, `rows`, dan `total`.
