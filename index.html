@@ -78,6 +78,7 @@
     </div>
     <div id="presetPills" style="margin-top:12px"></div>
     <div id="modelPreview" class="model-preview"></div>
+    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeBinary" /><div><strong>Sertakan binary/foto/attachment</strong><span>Aktifkan hanya jika butuh arsip gambar/file. File ZIP bisa besar dan rawan timeout pada Vercel.</span></div></label>
     <div class="actions">
       <button onclick="scanSelectedModels()" class="ghost">Cek Model Terpilih</button>
       <button onclick="fullAutopsy()">Full Autopsy Source</button>
@@ -85,6 +86,7 @@
       <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
       <button onclick="exportXlsx()">Export XLSX</button>
       <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
+      <button onclick="exportFullArchive()" class="secondary">Export Semua Isi DB (ZIP)</button>
     </div>
     <p class="small">Catatan: untuk database yang sama antara source dan target, gunakan scan/export dulu. Jangan import besar ke database yang sama kecuali memang ingin update data yang sudah punya External ID.</p>
   </section>
@@ -190,8 +192,9 @@ async function ensureXmlIds(){ await call('ensure_external_ids', { module:'lokal
 function downloadBase64(filename, base64, mime) {
   const a = document.createElement('a'); a.href = 'data:'+mime+';base64,'+base64; a.download = filename; a.click();
 }
-async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, limit:500 }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
-async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, limit:500 }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportFullArchive(){ const j = await call('export_full_database_archive_zip', { ensureExternalIds:true, exportAll:true, discoverAllModels:true, includeBinary:$('includeBinary').checked, includeUnsafe:false }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
 function readFileBase64(file) { return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
 async function importPreview(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_preview_xlsx', { fileBase64:b64 }); }
 async function importRun(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_xlsx', { fileBase64:b64, maxRowsPerSheet: Number($('maxRows').value || 500), stopOnError:false }); }

@@ -266,3 +266,34 @@ Gunakan dokumen itu sebagai standar agar ChatGPT tidak membuat template XLSX bar
 ## Fix v0.1.4 — URL tidak boleh jatuh ke 127.0.0.1
 
 Jika muncul error `connect ECONNREFUSED 127.0.0.1:80`, penyebab paling umum adalah URL Odoo dikirim tanpa protocol, misalnya `edu-lokalmart.odoo.com` bukan `https://edu-lokalmart.odoo.com`. Mulai v0.1.4, frontend dan backend otomatis menambahkan `https://` dan menolak URL localhost agar request XML-RPC tidak salah arah.
+## v0.1.6 — Export Semua Isi Database
+
+Versi ini menambahkan tombol **Export Semua Isi DB (ZIP)** dan action API:
+
+```text
+export_full_database_archive_zip
+```
+
+Mode ini membaca daftar model dari `ir.model`, melewati model runtime yang berisiko seperti `mail.message`, `mail.mail`, `bus.*`, dan `ir.logging`, lalu mengekspor record yang bisa dibaca ke paket ZIP berisi XLSX per model.
+
+Payload contoh:
+
+```json
+{
+  "action": "export_full_database_archive_zip",
+  "source": { "url": "https://edu-lokalmart.odoo.com", "db": "edu-lokalmart", "username": "sadjax@gmail.com", "password": "API_KEY" },
+  "payload": {
+    "exportAll": true,
+    "discoverAllModels": true,
+    "includeBinary": false,
+    "ensureExternalIds": true,
+    "includeUnsafe": false
+  }
+}
+```
+
+Catatan:
+
+- `includeBinary:false` lebih aman untuk Vercel karena file tidak terlalu besar.
+- Aktifkan **Sertakan binary/foto/attachment** hanya bila ukuran database masih kecil atau kamu memang membutuhkan gambar/file di ZIP.
+- Untuk backup utuh SQL + filestore, tetap gunakan backup resmi Odoo dari database manager. Export ZIP dari aplikasi ini ditujukan untuk migrasi/import selektif dan audit, bukan pengganti 100% backup PostgreSQL Odoo.
