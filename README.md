@@ -1,5 +1,19 @@
 # Lokalmart Odoo Migration Builder
 
+## v0.1.9 - Fault-tolerant export dan multi-sheet import-safe
+
+Perbaikan utama:
+
+- Frontend tidak lagi crash saat Vercel mengembalikan non-JSON seperti `An error occurred...`; pesan non-JSON dibaca sebagai error biasa.
+- Full database export bertahap tetap lanjut ke model berikutnya ketika satu model gagal.
+- Model/batch kosong tidak diekspor menjadi file/sheet kosong kecuali opsi **Ekspor model kosong juga** dicentang.
+- Ada opsi **Export 1 XLSX Multi-Sheet** untuk membuat satu workbook dengan banyak sheet.
+- Workbook multi-sheet memakai sheet data bernama technical model Odoo sebisa mungkin, dan tetap menyimpan kolom `_model` untuk model yang namanya harus dipendekkan karena batas 31 karakter Excel.
+- Workbook multi-sheet membawa `00_import_order` sehingga import ulang otomatis mengikuti urutan dependency dan relasi.
+- Relasi many2one/many2many tetap memakai `*_external_id` dan `*_external_ids`, sehingga mudah diimport kembali ke database lain.
+- Importer mengabaikan row kosong dan tetap `stopOnError:false` secara default dari UI.
+
+
 ## Default Lokalmart v0.1.4
 
 Frontend sudah di-hard-code dengan default berikut agar tidak jatuh ke localhost dan tidak perlu mengetik ulang koneksi:

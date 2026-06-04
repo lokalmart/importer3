@@ -54,7 +54,7 @@
 <header>
   <div class="wrap">
     <h1>Lokalmart Odoo Migration Builder</h1>
-    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, import foto produk dari <b>image_url</b>, dan full database export bertahap tanpa ZIP dengan kategorisasi file per model.</p>
+    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, import foto produk dari <b>image_url</b>, full database export bertahap tanpa ZIP, dan opsi 1 XLSX multi-sheet migration-safe.</p>
   </div>
 </header>
 <main class="wrap">
@@ -98,6 +98,7 @@
       <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
       <button onclick="exportXlsx()">Export XLSX Gabungan</button>
       <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
+      <button onclick="exportFullMultiSheet()" class="ghost">Export 1 XLSX Multi-Sheet</button>
     </div>
     <p class="small">Catatan: untuk database yang sama antara source dan target, gunakan scan/export dulu. Jangan import besar ke database yang sama kecuali memang ingin update data yang sudah punya External ID.</p>
   </section>
@@ -114,6 +115,7 @@
       </div>
     </div>
     <label class="preset" style="margin-top:12px"><input type="checkbox" id="archiveUnsafe" /><div><strong>Sertakan model sistem berat/berisiko</strong><span>Normalnya jangan dicentang. Jika aktif, mail.message, bus, log, dan model teknis lain bisa membuat export sangat berat.</span></div></label>
+    <label class="preset" style="margin-top:12px"><input type="checkbox" id="includeEmptySheets" /><div><strong>Ekspor model kosong juga</strong><span>Normalnya jangan dicentang. Jika mati, model yang tidak punya record tidak akan dibuatkan file/sheet kosong.</span></div></label>
     <h3 style="font-size:14px;margin:14px 0 6px">Kategori model yang akan diekspor</h3>
     <div id="archiveCategoryFilters" class="category-filter"><span class="small">Klik Muat Daftar Model Aman untuk menampilkan kategori.</span></div>
     <div class="actions">
@@ -217,12 +219,27 @@ function archiveStatus(text, mode='') {
 }
 function log(obj) { $('log').textContent = JSON.stringify(obj, null, 2); }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function parseApiResponse(res) {
+  const text = await res.text();
+  try {
+    const json = text ? JSON.parse(text) : {};
+    if (!res.ok && json.ok !== false) json.ok = false;
+    if (!res.ok && !json.error) json.error = 'HTTP '+res.status+' '+res.statusText;
+    return json;
+  } catch (err) {
+    return {
+      ok:false,
+      error:'Server mengembalikan non-JSON. Kemungkinan timeout/error Vercel: HTTP '+res.status+' '+res.statusText+' — '+text.slice(0, 220),
+      raw:text.slice(0, 1000)
+    };
+  }
+}
 async function call(action, extra={}, signal=null) {
   status('Memproses '+action+'...');
   const profiles = selectedProfiles();
   const body = { action, source: conn('s'), target: conn('t'), payload: { profiles, profile: profiles.join(','), ...extra } };
   const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body), signal });
-  const json = await res.json();
+  const json = await parseApiResponse(res);
   log(json);
   status(json.ok ? 'Selesai: '+action : 'Gagal: '+(json.error || action), !json.ok);
   return json;
@@ -232,7 +249,7 @@ async function testConn(which) {
   body[which] = conn(which === 'source' ? 's' : 't');
   body.source = body[which];
   const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const json = await res.json(); log(json); status(json.ok ? 'Koneksi '+which+' berhasil.' : 'Koneksi gagal: '+json.error, !json.ok);
+  const json = await parseApiResponse(res); log(json); status(json.ok ? 'Koneksi '+which+' berhasil.' : 'Koneksi gagal: '+json.error, !json.ok);
 }
 async function scanSelectedModels(){ await call('scan_models'); }
 async function fullAutopsy(){ await call('full_autopsy'); }
@@ -245,8 +262,12 @@ function downloadText(filename, text, mime='application/json') {
   const blob = new Blob([text], { type:mime });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
 }
-async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
-async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked }); if(j.ok) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportXlsx(){ const j = await call('export_migration_safe_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked, includeEmptySheets:$('includeEmptySheets')?.checked === true, stopOnError:false }); if(j.ok && j.base64) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportZip(){ const j = await call('export_migration_package_zip', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked, includeEmptySheets:$('includeEmptySheets')?.checked === true, stopOnError:false }); if(j.ok && j.base64) downloadBase64(j.filename, j.base64, j.mime); }
+async function exportFullMultiSheet(){
+  const j = await call('export_full_database_multisheet_xlsx', { ensureExternalIds:true, exportAll:true, includeBinary:$('includeBinary').checked, includeUnsafe:$('archiveUnsafe')?.checked === true, includeEmptySheets:$('includeEmptySheets')?.checked === true, stopOnError:false });
+  if(j.ok && j.base64) downloadBase64(j.filename, j.base64, j.mime);
+}
 function setArchiveProgress(done, total) {
   const pct = total ? Math.round((done / total) * 100) : 0;
   $('archiveProgressBar').style.width = Math.min(100, pct) + '%';
@@ -319,10 +340,19 @@ async function startFullArchiveJob() {
           j = await call('export_model_xlsx', { model, category:row.category, categoryLabel:row.categoryLabel, offset, limit:batchSize, batchSize, includeBinary:$('includeBinary').checked, includeUnsafe:$('archiveUnsafe').checked, rawAllFields:true, ensureExternalIds:true, module:'lokalmart_mig' }, archiveJob.controller.signal);
         } catch (err) {
           if (archiveJob.stop || err.name === 'AbortError') { row.status = 'dihentikan'; break; }
-          throw err;
+          row.status = 'error';
+          row.error = err.message || String(err);
+          archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, status:'error', error:row.error, offset, part });
+          break;
         }
-        if (!j.ok) { row.status = 'error'; row.error = j.error || 'Gagal export model'; break; }
-        if (j.rows > 0 || offset === 0) {
+        if (!j.ok) { row.status = 'error'; row.error = j.error || 'Gagal export model'; archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, status:'error', error:row.error, offset, part }); break; }
+        if (j.skipped) {
+          row.status = 'kosong/dilewati';
+          row.rows = Number(row.rows || 0);
+          archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, status:'skipped_empty', offset:j.offset, total:j.total, part:j.part, warnings:j.warnings || [] });
+          break;
+        }
+        if (j.rows > 0 && j.base64) {
           downloadBase64(j.filename, j.base64, j.mime);
           archiveJob.manifest.files.push({ category:row.category, category_label:row.categoryLabel, model, filename:j.filename, offset:j.offset, limit:j.limit, rows:j.rows, total:j.total, part:j.part, warnings:j.warnings || [] });
           row.file = j.filename;
@@ -334,7 +364,7 @@ async function startFullArchiveJob() {
         offset = j.nextOffset;
         part += 1;
       }
-      if (!row.error && row.status !== 'dihentikan') row.status = 'selesai';
+      if (!row.error && row.status !== 'dihentikan' && row.status !== 'kosong/dilewati') row.status = 'selesai';
       finishedModels += 1;
       setArchiveProgress(finishedModels, archiveJob.rows.length);
       renderArchiveRows();
@@ -371,7 +401,7 @@ async function validateXml(){ await call('validate_qweb_xml', { xml: $('xmlbox')
 async function loadPresetsFromApi() {
   try {
     const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'model_presets' }) });
-    const json = await res.json();
+    const json = await parseApiResponse(res);
     if (json.ok && json.presets) {
       for (const [key, preset] of Object.entries(json.presets)) {
         if (key !== 'full' && Array.isArray(preset.models)) PRESETS[key] = preset.models;

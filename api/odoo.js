@@ -1,7 +1,7 @@
 const { makeClient } = require('../lib/odooClient');
 const { fullAutopsy, scanModels, modelExists } = require('../lib/scanner');
 const { ensureExternalIdsForModel } = require('../lib/externalId');
-const { exportMigrationXlsx, exportMigrationPackageZip, exportFullDatabaseArchiveZip, exportSingleModelXlsx, discoverArchiveModels, countModelRows } = require('../lib/exporter');
+const { exportMigrationXlsx, exportMigrationPackageZip, exportFullDatabaseArchiveZip, exportSingleModelXlsx, exportFullDatabaseMultiSheetXlsx, discoverArchiveModels, countModelRows } = require('../lib/exporter');
 const { importPreview, importWorkbook, importProductImagesFromWorkbook } = require('../lib/importer');
 const { exportModelsForProfile, exportModelsForProfiles, presetSummary, archiveCategorySummary, categorizeModels } = require('../lib/modelProfiles');
 const { validateXml } = require('../lib/validators');
@@ -75,7 +75,7 @@ module.exports = async function handler(req, res) {
     const action = String(body.action || '').trim();
     const payload = body.payload || {};
 
-    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.8' });
+    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.9' });
     if (action === 'model_presets') return send(res, 200, { ok: true, presets: presetSummary(), archive_categories: archiveCategorySummary() });
     if (action === 'validate_qweb_xml') return send(res, 200, { ok: true, validation: validateXml(payload.xml || body.xml || '') });
 
@@ -158,6 +158,13 @@ module.exports = async function handler(req, res) {
     if (action === 'export_migration_package_zip') {
       const client = makeClient(pickConnection(body, 'source'));
       const result = await exportMigrationPackageZip(client, payload);
+      return send(res, 200, { ok: true, ...result });
+    }
+
+
+    if (action === 'export_full_database_multisheet_xlsx') {
+      const client = makeClient(pickConnection(body, 'source'));
+      const result = await exportFullDatabaseMultiSheetXlsx(client, payload);
       return send(res, 200, { ok: true, ...result });
     }
 
