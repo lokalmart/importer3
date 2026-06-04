@@ -1,6 +1,20 @@
 # Lokalmart Odoo Migration Builder
 
-Aplikasi Vercel satu-endpoint untuk scan, export, dan import XLSX migration-safe Odoo 18.
+## Default Lokalmart v0.1.4
+
+Frontend sudah di-hard-code dengan default berikut agar tidak jatuh ke localhost dan tidak perlu mengetik ulang koneksi:
+
+```text
+URL      : https://edu-lokalmart.odoo.com
+Database : edu-lokalmart
+Username : sadjax@gmail.com
+Password : tidak di-hard-code; isi manual di form atau Vercel Environment Variables
+```
+
+Source dan Target sama-sama diberi default ini. Untuk migrasi nyata, ubah Target ke database kosong/tujuan agar tidak mengimpor ulang ke database yang sama.
+
+
+Aplikasi Vercel satu-endpoint untuk scan, export, dan import XLSX migration-safe Odoo 18. Mulai v0.1.5, daftar model tidak perlu diisi manual karena UI memakai preset checklist otomatis.
 
 ## Tujuan
 
@@ -61,6 +75,7 @@ Contoh body:
 | Action | Fungsi |
 |---|---|
 | `health` | Cek aplikasi hidup |
+| `model_presets` | Ambil preset checklist model otomatis: schema, master, project, accounting, website, full |
 | `test_connection` | Test login Odoo |
 | `version` | Ambil versi server Odoo |
 | `scan_models` | Scan model dan field |
@@ -73,6 +88,19 @@ Contoh body:
 | `import_preview_xlsx` | Preview XLSX sebelum import |
 | `import_xlsx` | Import XLSX ke target |
 | `validate_qweb_xml` | Validasi XML/QWeb |
+
+## Profile / checklist export
+
+Di UI, pilih checklist berikut. Backend otomatis mengubah pilihan menjadi daftar model yang benar.
+
+| Checklist | Isi utama |
+|---|---|
+| Schema & Custom Fields | `ir.model`, `ir.model.fields`, selection, view, menu, access rights, record rules |
+| Master Data, Produk & Foto | company, partner, kategori, UoM, attribute, product, supplier info |
+| Project & Operasional | project, stage, milestone, task, analytic account, analytic line |
+| Akuntansi Config | account group, account, tax, journal, payment term, analytic |
+| Website Pages & QWeb | website, `ir.ui.view`, `website.page`, `website.menu`, attachment |
+| Semua Migration-Safe | gabungan utama |
 
 ## Profile export
 
@@ -146,3 +174,95 @@ Aplikasi mengurutkan sheet mengikuti rencana import di `lib/modelProfiles.js`:
 ## Keamanan
 
 Jangan commit password/API key ke GitHub. Isi credential dari UI atau Environment Variables Vercel.
+
+## v0.1.1 - Legacy XLSX compatibility patch
+
+Patch ini menambahkan mode kompatibilitas untuk file XLSX lama yang dibuat sebelum format migration-safe final.
+
+Yang sekarang otomatis dikenali:
+
+- `external_id` -> `_external_id`
+- `parent_external_id` -> `parent_id_external_id`
+- `categ_external_id` -> `categ_id_external_id`
+- `public_categ_external_ids` -> `public_categ_ids_external_ids`
+- `category_external_ids` -> `category_id_external_ids`
+- `attribute_external_id` -> `attribute_id_external_id`
+- `product_tmpl_external_id` -> `product_tmpl_id_external_id`
+- `partner_external_id` -> `partner_id_external_id`
+- `field_external_id` -> `field_id_external_id`
+- `value_external_ids` -> `value_ids_external_ids`
+
+Sheet metadata/notes seperti `README`, `_import_order`, `_importer_rules`, `_summary_check`, `_accounting_category_notes`, `_product_notes`, dan `photo_import_queue` tidak lagi dipaksa menjadi model Odoo palsu.
+
+Tambahan khusus:
+
+- `ir.model.fields` sekarang membuat external id field setelah field berhasil dibuat/diupdate.
+- `ir.model.fields.selection` sekarang punya handler khusus untuk resolve field dari `field_external_id`/`field_id_external_id`.
+- Kolom `selection_values` di sheet `ir.model.fields` bisa langsung dibuat menjadi pilihan selection dengan format `value:Label;value2:Label 2`.
+- Kolom nama manusia seperti `country_name`, `state_name`, `uom_name`, `uom_po_name`, dan `currency_name` dipakai sebagai hint untuk mencari record relasi berdasarkan nama jika external id tidak tersedia.
+
+
+## v0.1.4 - Import foto produk dari URL dan standar XLSX ChatGPT
+
+Versi ini menambahkan standar resmi untuk file XLSX yang dibuat ChatGPT dan fitur import foto produk dari URL.
+
+### Fitur baru
+
+- Action API baru: `import_product_images`.
+- Tombol frontend baru: **Import Foto dari URL**.
+- Kolom foto standar: `image_url`.
+- Alias foto lama yang diterima: `photo_url`, `image_1920_url`, `product_image_url`, `main_image_url`.
+- Sheet antrean foto: `photo_import_queue` atau `_photo_import_queue`.
+- Foto di-download dari URL publik, dikonversi menjadi base64, lalu ditulis ke field gambar Odoo:
+  - `product.template.image_1920`
+  - `product.product.image_variant_1920` jika tersedia
+- `image_url` tidak lagi dianggap field biasa yang memicu warning palsu saat import data.
+
+### Cara import produk dengan foto URL
+
+1. Import data produk dulu dengan tombol **Import ke Target**.
+2. Pastikan produk punya `_external_id` dan sukses dibuat/diupdate.
+3. Klik **Import Foto dari URL**.
+4. Importer akan mencari produk berdasarkan `_external_id`, download `image_url`, lalu menulis ke `image_1920`.
+
+### Format produk dengan foto
+
+```text
+Sheet: product.template
+Kolom wajib foto: _external_id, name, image_url
+```
+
+Contoh:
+
+```text
+_external_id,name,categ_id_external_id,image_url
+lokalmart.prod_aglaonema_red_001,Aglaonema Red,lokalmart.cat_tanaman_hias,https://example.com/aglaonema-red.jpg
+```
+
+### Sheet antrean foto opsional
+
+```text
+Sheet: photo_import_queue
+Kolom: model, record_external_id, image_url, image_field, image_alt, image_note
+```
+
+Contoh:
+
+```text
+product.template,lokalmart.prod_aglaonema_red_001,https://example.com/aglaonema-red.jpg,image_1920,Aglaonema Red,Foto utama produk
+```
+
+### Panduan XLSX untuk ChatGPT
+
+Lihat file:
+
+```text
+docs/XLSX_TEMPLATE_GUIDE_CHATGPT.md
+```
+
+Gunakan dokumen itu sebagai standar agar ChatGPT tidak membuat template XLSX baru yang gagal import.
+
+
+## Fix v0.1.4 — URL tidak boleh jatuh ke 127.0.0.1
+
+Jika muncul error `connect ECONNREFUSED 127.0.0.1:80`, penyebab paling umum adalah URL Odoo dikirim tanpa protocol, misalnya `edu-lokalmart.odoo.com` bukan `https://edu-lokalmart.odoo.com`. Mulai v0.1.4, frontend dan backend otomatis menambahkan `https://` dan menolak URL localhost agar request XML-RPC tidak salah arah.

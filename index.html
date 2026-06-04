@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lokalmart Odoo Migration Builder</title>
   <style>
-    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; }
+    :root { --bg:#f7f8fb; --card:#fff; --ink:#172033; --muted:#667085; --line:#e6e8ef; --accent:#f97316; --ok:#16a34a; --bad:#dc2626; --soft:#fff7ed; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif; background:var(--bg); color:var(--ink); }
     header { padding:28px 22px 18px; background:linear-gradient(135deg,#fff,#fff7ed); border-bottom:1px solid var(--line); }
@@ -27,57 +27,66 @@
     .status { margin-top:12px; padding:10px 12px; border-radius:12px; background:#f8fafc; color:var(--muted); font-size:13px; }
     .ok { color:var(--ok); } .bad { color:var(--bad); }
     .small { font-size:12px; }
-    @media (max-width: 860px) { .grid { grid-template-columns:1fr; } }
+    .preset-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px; }
+    .preset { display:flex; gap:10px; align-items:flex-start; padding:13px; border:1px solid var(--line); border-radius:15px; background:#fff; }
+    .preset:hover { border-color:#fdba74; background:#fffaf5; }
+    .preset input { width:auto; margin-top:3px; }
+    .preset strong { display:block; font-size:14px; }
+    .preset span { display:block; color:var(--muted); font-size:12px; line-height:1.45; margin-top:3px; }
+    .model-preview { margin-top:12px; padding:12px; border:1px dashed #fdba74; background:var(--soft); border-radius:14px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:#7c2d12; max-height:150px; overflow:auto; }
+    .pill { display:inline-block; padding:5px 9px; border-radius:999px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-size:12px; margin:2px; }
+    @media (max-width: 860px) { .grid, .preset-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <h1>Lokalmart Odoo Migration Builder</h1>
-    <p>Scanner, exporter, importer, external ID resolver, dan validator QWeb/XML untuk migrasi aman Odoo 18 via XLSX.</p>
+    <p>Scanner, exporter, importer, External ID resolver, validator QWeb/XML, dan import foto produk dari <b>image_url</b>. Mulai v0.1.5 model tidak perlu diisi manual: pilih paket checklist.</p>
   </div>
 </header>
 <main class="wrap">
   <div class="grid">
     <section class="card">
       <h2>Source Odoo lama</h2>
-      <label>URL</label><input id="s_url" placeholder="https://edu-lokalmart.odoo.com" />
-      <label>Database</label><input id="s_db" placeholder="nama-db" />
-      <label>Username</label><input id="s_user" placeholder="email admin" />
+      <label>URL</label><input id="s_url" placeholder="https://edu-lokalmart.odoo.com" value="https://edu-lokalmart.odoo.com" />
+      <label>Database</label><input id="s_db" placeholder="nama-db" value="edu-lokalmart" />
+      <label>Username</label><input id="s_user" placeholder="email admin" value="sadjax@gmail.com" />
       <label>Password / API key</label><input id="s_pass" type="password" />
       <div class="actions"><button onclick="testConn('source')">Test Source</button></div>
     </section>
     <section class="card">
       <h2>Target Odoo baru</h2>
-      <label>URL</label><input id="t_url" placeholder="https://target.odoo.com" />
-      <label>Database</label><input id="t_db" placeholder="nama-db-target" />
-      <label>Username</label><input id="t_user" placeholder="email admin" />
+      <label>URL</label><input id="t_url" placeholder="https://target.odoo.com" value="https://edu-lokalmart.odoo.com" />
+      <label>Database</label><input id="t_db" placeholder="nama-db-target" value="edu-lokalmart" />
+      <label>Username</label><input id="t_user" placeholder="email admin" value="sadjax@gmail.com" />
       <label>Password / API key</label><input id="t_pass" type="password" />
       <div class="actions"><button onclick="testConn('target')">Test Target</button></div>
     </section>
   </div>
 
   <section class="card">
-    <h2>Mode kerja</h2>
-    <label>Profile export/import</label>
-    <select id="profile">
-      <option value="full">Full migration safe</option>
-      <option value="schema">Schema only</option>
-      <option value="master">Master data</option>
-      <option value="project">Project & operation</option>
-      <option value="website">Website pages</option>
-      <option value="accounting">Accounting config</option>
-    </select>
-    <label>Custom model list, opsional, pisahkan koma</label>
-    <input id="models" placeholder="res.partner,product.template,project.project,website.page,ir.ui.view" />
+    <h2>Pilih Paket Model Otomatis</h2>
+    <p class="small">Tidak perlu mengisi payload models manual. Centang kebutuhan import/export, lalu sistem otomatis mengirim daftar model yang sesuai ke API.</p>
+    <div class="preset-grid">
+      <label class="preset"><input type="checkbox" name="preset" value="schema" onchange="onPresetChange()" /><div><strong>Schema & Custom Fields</strong><span>Custom model, custom field, selection, QWeb/backend view, menu, access rights, dan record rules.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="master" checked onchange="onPresetChange()" /><div><strong>Master Data, Produk & Foto</strong><span>Company, kontak/vendor, kategori, UoM, attribute, produk, supplier info. Foto diproses lewat image_url.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="project" onchange="onPresetChange()" /><div><strong>Project & Operasional</strong><span>Project, stage, milestone, task, analytic account, analytic line, dan timesheet.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="accounting" onchange="onPresetChange()" /><div><strong>Akuntansi Config</strong><span>Bagan akun, pajak, jurnal, payment terms, analytic plan, dan analytic account.</span></div></label>
+      <label class="preset"><input type="checkbox" name="preset" value="website" onchange="onPresetChange()" /><div><strong>Website Pages & QWeb</strong><span>Website, ir.ui.view/QWeb, website.page, website.menu, dan attachment website.</span></div></label>
+      <label class="preset"><input type="checkbox" id="preset_full" name="preset" value="full" onchange="onPresetChange()" /><div><strong>Semua Migration-Safe</strong><span>Gabungan utama. Cocok untuk full autopsy/export, tetapi tetap import bertahap lebih aman.</span></div></label>
+    </div>
+    <div id="presetPills" style="margin-top:12px"></div>
+    <div id="modelPreview" class="model-preview"></div>
     <div class="actions">
+      <button onclick="scanSelectedModels()" class="ghost">Cek Model Terpilih</button>
       <button onclick="fullAutopsy()">Full Autopsy Source</button>
       <button onclick="gapReport()" class="secondary">Gap Source vs Target</button>
       <button onclick="ensureXmlIds()" class="ghost">Generate External ID</button>
       <button onclick="exportXlsx()">Export XLSX</button>
       <button onclick="exportZip()" class="secondary">Export ZIP Package</button>
     </div>
-    <p class="small">Catatan: untuk data besar gunakan profile kecil dulu. Vercel Serverless punya batas waktu, jadi export/import besar sebaiknya dipecah per model/profile.</p>
+    <p class="small">Catatan: untuk database yang sama antara source dan target, gunakan scan/export dulu. Jangan import besar ke database yang sama kecuali memang ingin update data yang sudah punya External ID.</p>
   </section>
 
   <div class="grid">
@@ -89,6 +98,7 @@
       <div class="actions">
         <button onclick="importPreview()" class="ghost">Preview Import</button>
         <button onclick="importRun()">Import ke Target</button>
+        <button onclick="importImages()" class="secondary">Import Foto dari URL</button>
       </div>
     </section>
     <section class="card">
@@ -107,18 +117,59 @@
 </main>
 <script>
 const $ = id => document.getElementById(id);
+const DEFAULT_ODOO = { url: 'https://edu-lokalmart.odoo.com', db: 'edu-lokalmart', username: 'sadjax@gmail.com' };
+let PRESETS = {
+  schema: ['ir.model','ir.model.fields','ir.model.fields.selection','ir.ui.view','ir.ui.menu','ir.actions.act_window','ir.model.access','ir.rule'],
+  master: ['res.company','res.partner.category','res.partner','product.category','product.public.category','uom.category','uom.uom','product.attribute','product.attribute.value','product.template','product.product','product.supplierinfo'],
+  project: ['account.analytic.plan','account.analytic.account','project.project','project.task.type','project.milestone','project.task','account.analytic.line'],
+  accounting: ['account.group','account.account','account.tax.group','account.tax','account.journal','account.payment.term','account.analytic.plan','account.analytic.account'],
+  website: ['website','ir.ui.view','website.page','website.menu','ir.attachment']
+};
+function cleanUrl(raw) {
+  let v = String(raw || '').trim();
+  if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v.replace(/^\/+/, '');
+  return v.replace(/\/+$/, '');
+}
 function conn(prefix) {
-  return { url: $(prefix+'_url').value.trim(), db: $(prefix+'_db').value.trim(), username: $(prefix+'_user').value.trim(), password: $(prefix+'_pass').value };
+  return { url: cleanUrl($(prefix+'_url').value || DEFAULT_ODOO.url), db: ($(prefix+'_db').value || DEFAULT_ODOO.db).trim(), username: ($(prefix+'_user').value || DEFAULT_ODOO.username).trim(), password: $(prefix+'_pass').value };
+}
+function checkedPresetValues() { return [...document.querySelectorAll('input[name="preset"]:checked')].map(x => x.value); }
+function selectedProfiles() {
+  const values = checkedPresetValues();
+  if (!values.length) return ['master'];
+  return values.includes('full') ? ['full'] : values;
 }
 function selectedModels() {
-  const raw = $('models').value.trim();
-  return raw ? raw.split(',').map(s=>s.trim()).filter(Boolean) : undefined;
+  const profiles = selectedProfiles();
+  if (profiles.includes('full')) {
+    const all = [];
+    ['schema','master','accounting','project','website'].forEach(k => all.push(...(PRESETS[k] || [])));
+    return [...new Set(all)];
+  }
+  const out = [];
+  profiles.forEach(k => out.push(...(PRESETS[k] || [])));
+  return [...new Set(out)];
 }
-function status(text, bad=false) { $('status').innerHTML = bad ? '<span class="bad">'+text+'</span>' : text; }
+function onPresetChange() {
+  const full = $('preset_full');
+  if (full.checked) {
+    document.querySelectorAll('input[name="preset"]').forEach(cb => { if (cb.value !== 'full') cb.checked = false; });
+  }
+  updateModelPreview();
+}
+function updateModelPreview() {
+  const profiles = selectedProfiles();
+  const models = selectedModels();
+  $('presetPills').innerHTML = profiles.map(p => '<span class="pill">'+p+'</span>').join('') + '<span class="pill">'+models.length+' model</span>';
+  $('modelPreview').textContent = models.join(', ');
+}
+function status(text, bad=false) { $('status').innerHTML = bad ? '<span class="bad">'+escapeHtml(text)+'</span>' : escapeHtml(text); }
 function log(obj) { $('log').textContent = JSON.stringify(obj, null, 2); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 async function call(action, extra={}) {
   status('Memproses '+action+'...');
-  const body = { action, source: conn('s'), target: conn('t'), payload: { profile: $('profile').value, models: selectedModels(), ...extra } };
+  const profiles = selectedProfiles();
+  const body = { action, source: conn('s'), target: conn('t'), payload: { profiles, profile: profiles.join(','), ...extra } };
   const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
   const json = await res.json();
   log(json);
@@ -132,6 +183,7 @@ async function testConn(which) {
   const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
   const json = await res.json(); log(json); status(json.ok ? 'Koneksi '+which+' berhasil.' : 'Koneksi gagal: '+json.error, !json.ok);
 }
+async function scanSelectedModels(){ await call('scan_models'); }
 async function fullAutopsy(){ await call('full_autopsy'); }
 async function gapReport(){ await call('target_gap_report'); }
 async function ensureXmlIds(){ await call('ensure_external_ids', { module:'lokalmart_mig', limit:500 }); }
@@ -143,7 +195,22 @@ async function exportZip(){ const j = await call('export_migration_package_zip',
 function readFileBase64(file) { return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); }); }
 async function importPreview(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_preview_xlsx', { fileBase64:b64 }); }
 async function importRun(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_xlsx', { fileBase64:b64, maxRowsPerSheet: Number($('maxRows').value || 500), stopOnError:false }); }
+async function importImages(){ const f=$('xlsx').files[0]; if(!f) return status('Pilih file XLSX dulu.', true); const b64=await readFileBase64(f); await call('import_product_images', { fileBase64:b64, maxRows: Number($('maxRows').value || 300), maxImageBytes: 5*1024*1024, timeoutMs: 15000, stopOnError:false }); }
 async function validateXml(){ await call('validate_qweb_xml', { xml: $('xmlbox').value }); }
+async function loadPresetsFromApi() {
+  try {
+    const res = await fetch('/api/odoo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'model_presets' }) });
+    const json = await res.json();
+    if (json.ok && json.presets) {
+      for (const [key, preset] of Object.entries(json.presets)) {
+        if (key !== 'full' && Array.isArray(preset.models)) PRESETS[key] = preset.models;
+      }
+      updateModelPreview();
+    }
+  } catch (_) {}
+}
+updateModelPreview();
+loadPresetsFromApi();
 </script>
 </body>
 </html>

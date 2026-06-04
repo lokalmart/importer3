@@ -2,8 +2,8 @@ const { makeClient } = require('../lib/odooClient');
 const { fullAutopsy, scanModels, modelExists } = require('../lib/scanner');
 const { ensureExternalIdsForModel } = require('../lib/externalId');
 const { exportMigrationXlsx, exportMigrationPackageZip } = require('../lib/exporter');
-const { importPreview, importWorkbook } = require('../lib/importer');
-const { exportModelsForProfile } = require('../lib/modelProfiles');
+const { importPreview, importWorkbook, importProductImagesFromWorkbook } = require('../lib/importer');
+const { exportModelsForProfile, exportModelsForProfiles, presetSummary } = require('../lib/modelProfiles');
 const { validateXml } = require('../lib/validators');
 const { flattenError } = require('../lib/utils');
 
@@ -39,6 +39,13 @@ function pickConnection(body, kind = 'source') {
   return body[kind] || body.connection || body.odoo || {};
 }
 
+function modelsFromPayload(payload = {}, body = {}) {
+  if (Array.isArray(payload.models) && payload.models.length) return payload.models;
+  if (Array.isArray(body.models) && body.models.length) return body.models;
+  const profiles = payload.profiles || body.profiles || payload.profile || body.profile || 'full';
+  return exportModelsForProfiles(profiles);
+}
+
 async function targetGapReport(sourceClient, targetClient, models) {
   const sourceScan = await scanModels(sourceClient, models);
   const targetScan = await scanModels(targetClient, models);
@@ -68,7 +75,8 @@ module.exports = async function handler(req, res) {
     const action = String(body.action || '').trim();
     const payload = body.payload || {};
 
-    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.0' });
+    if (action === 'health') return send(res, 200, { ok: true, app: 'Lokalmart Odoo Migration Builder', version: '0.1.5' });
+    if (action === 'model_presets') return send(res, 200, { ok: true, presets: presetSummary() });
     if (action === 'validate_qweb_xml') return send(res, 200, { ok: true, validation: validateXml(payload.xml || body.xml || '') });
 
     if (!action) return send(res, 400, { ok: false, error: 'action wajib diisi.' });
@@ -87,13 +95,13 @@ module.exports = async function handler(req, res) {
 
     if (action === 'scan_models') {
       const client = makeClient(pickConnection(body, 'source'));
-      const models = payload.models || body.models || exportModelsForProfile(payload.profile || body.profile || 'full');
+      const models = modelsFromPayload(payload, body)
       return send(res, 200, { ok: true, result: await scanModels(client, models) });
     }
 
     if (action === 'full_autopsy') {
       const client = makeClient(pickConnection(body, 'source'));
-      const models = payload.models || body.models || exportModelsForProfile(payload.profile || body.profile || 'full');
+      const models = modelsFromPayload(payload, body)
       return send(res, 200, { ok: true, result: await fullAutopsy(client, models, payload) });
     }
 
@@ -105,8 +113,8 @@ module.exports = async function handler(req, res) {
 
     if (action === 'ensure_external_ids') {
       const client = makeClient(pickConnection(body, 'source'));
-      const models = payload.models || body.models || [];
-      if (!models.length) return send(res, 400, { ok: false, error: 'payload.models wajib diisi.' });
+      const models = modelsFromPayload(payload, body);
+      if (!models.length) return send(res, 400, { ok: false, error: 'Tidak ada model yang dipilih. Pilih preset seperti master/project/accounting/website/full.' });
       const results = [];
       for (const model of models) {
         results.push(await ensureExternalIdsForModel(client, model, payload));
@@ -138,10 +146,17 @@ module.exports = async function handler(req, res) {
       return send(res, 200, { ok: true, result });
     }
 
+
+    if (action === 'import_product_images') {
+      const client = makeClient(pickConnection(body, 'target'));
+      const result = await importProductImagesFromWorkbook(client, payload.fileBase64 || body.fileBase64, payload);
+      return send(res, 200, { ok: true, result });
+    }
+
     if (action === 'target_gap_report') {
       const sourceClient = makeClient(pickConnection(body, 'source'));
       const targetClient = makeClient(pickConnection(body, 'target'));
-      const models = payload.models || body.models || exportModelsForProfile(payload.profile || body.profile || 'full');
+      const models = modelsFromPayload(payload, body)
       return send(res, 200, { ok: true, result: await targetGapReport(sourceClient, targetClient, models) });
     }
 
