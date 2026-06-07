@@ -1,24 +1,19 @@
 {
-  "name": "lokalmart-odoo-migration-builder",
-  "version": "0.3.2",
+  "name": "lokalmart-importer-studio",
+  "version": "1.0.3",
   "private": true,
-  "description": "User-friendly Odoo migration console for ChatGPT XLSX import/export",
-  "license": "UNLICENSED",
+  "description": "Lokalmart XLSX to Odoo importer with native-like super fast mode and photo queue import.",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
     "lint": "node -c api/odoo.js && for f in lib/*.js; do node -c \"$f\"; done"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.10",
-    "fast-xml-parser": "^4.5.1",
-    "jszip": "^3.10.1",
-    "slugify": "^1.6.6",
     "xlsx": "^0.18.5",
     "xmlrpc": "^1.3.2"
   },
   "devDependencies": {
-    "vercel": "^39.2.6"
+    "vercel": "^34.0.0"
   },
   "engines": {
     "node": ">=18"

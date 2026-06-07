@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lokalmart Importer Studio</title>
+  <style>
+    :root{--bg:#0b1020;--panel:#121a2e;--panel2:#18223a;--line:#26324f;--text:#eef3ff;--muted:#9fb0d0;--ok:#44d07b;--warn:#ffd166;--err:#ff5f6d;--accent:#6ee7f9;--accent2:#a78bfa;--chip:#22304f}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top left,#1f2d5c 0,#0b1020 32%,#070a14 100%);color:var(--text)}button,input,select,textarea{font:inherit}button{border:0;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;color:#06111d;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 30px #0007}button.secondary{background:#202b48;color:var(--text);border:1px solid var(--line);box-shadow:none}button.danger{background:#40242a;color:#fff;border:1px solid #743642}button:disabled{opacity:.45;cursor:not-allowed}.app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}.side{border-right:1px solid var(--line);background:#080d1bdd;padding:24px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#ff9f1c,#6ee7f9);box-shadow:0 12px 32px #0008}.brand h1{font-size:20px;line-height:1.1;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.steps{display:flex;flex-direction:column;gap:10px}.step{padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:#10182b;color:var(--muted);display:flex;justify-content:space-between;align-items:center}.step.active{background:linear-gradient(135deg,#1b2a4e,#1d1644);color:var(--text);border-color:#6272ff}.step.done{border-color:#2d9f67;color:#caffe2}.main{padding:26px;max-width:1400px}.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}.hero h2{font-size:30px;margin:0 0 8px}.hero p{color:var(--muted);margin:0;max-width:760px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:linear-gradient(180deg,#131d33,#0f1728);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 12px 40px #0005}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}.card h3{margin:0 0 12px;font-size:17px}.field{display:flex;flex-direction:column;gap:7px;margin:10px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;background:#0b1222;border:1px solid var(--line);color:var(--text);border-radius:13px;padding:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row > *{flex:1}.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--chip);border-radius:99px;padding:7px 10px;color:#cdd8f6;font-size:12px;font-weight:700}.pill.ok{border-color:#25764f;color:#caffe2}.pill.warn{border-color:#806826;color:#ffe6a2}.pill.err{border-color:#8f3440;color:#ffd6d9}.progress{height:13px;border-radius:99px;background:#070b15;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stat{background:#0c1324;border:1px solid var(--line);padding:12px;border-radius:16px}.stat b{display:block;font-size:24px}.stat span{color:var(--muted);font-size:12px}.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:16px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid #22304c;vertical-align:top}th{color:#cfe2ff;background:#121b30;position:sticky;top:0}tr:last-child td{border-bottom:0}.log{height:330px;overflow:auto;background:#070b15;border:1px solid var(--line);border-radius:16px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;white-space:pre-wrap}.guideBox{max-height:520px;overflow:auto;background:#070b15;border:1px solid var(--line);border-radius:16px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;white-space:pre-wrap}.check{display:flex;gap:10px;align-items:flex-start;background:#0c1324;border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:10px}.check input{margin-top:4px;transform:scale(1.2)}.hidden{display:none}.phase{display:flex;gap:8px;flex-wrap:wrap}.phase .pill{opacity:.6}.phase .pill.active{opacity:1;border-color:#6ee7f9}.phase .pill.done{opacity:1;border-color:#44d07b}.footerActions{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#070a14 30%);padding-top:16px;margin-top:14px;display:flex;gap:10px;justify-content:flex-end}@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:relative;height:auto}.grid{grid-template-columns:1fr}.span4,.span6,.span8,.span12{grid-column:span 1}.stats{grid-template-columns:repeat(2,1fr)}.hero{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo"></div><div><h1>Lokalmart<br/>Importer Studio</h1><p>Native-like XLSX importer v1.0.3</p></div></div>
+    <div class="steps" id="steps"></div>
+    <div style="height:18px"></div>
+    <div class="card" style="padding:14px">
+      <b>Mode Super Cepat</b>
+      <p class="muted small">Memakai bulk import <code>load()</code> Odoo per model. Cocok untuk banyak field dan banyak data. Field custom tetap diproses khusus agar konflik tipe tidak menghentikan seluruh import.</p>
+    </div>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <div><h2>Import XLSX Odoo dengan flow jelas</h2><p>Upload, preview, preflight, import schema, master data, produk, supplier, lalu foto otomatis dengan feedback per batch.</p></div>
+      <div class="row" style="min-width:260px"><button id="btnRun" disabled>Mulai Import</button><button id="btnStop" class="danger" disabled>Stop</button></div>
+    </section>
+
+    <section class="grid">
+      <div class="card span4">
+        <h3>1. Target Odoo</h3>
+        <div class="field"><label>URL</label><input id="url" placeholder="https://edu-lokalmart.odoo.com" /></div>
+        <div class="field"><label>Database</label><input id="db" placeholder="nama-db" /></div>
+        <div class="field"><label>Username</label><input id="username" placeholder="email user Odoo" /></div>
+        <div class="field"><label>Password / API Key</label><input id="password" type="password" /></div>
+        <button class="secondary" id="btnTest">Tes Koneksi</button>
+        <p id="connStatus" class="muted small"></p>
+      </div>
+
+      <div class="card span4">
+        <h3>2. Upload XLSX</h3>
+        <div class="field"><label>File XLSX</label><input id="file" type="file" accept=".xlsx,.xls" /></div>
+        <div class="row"><button class="secondary" id="btnPreview" disabled>Preview</button><button class="secondary" id="btnPreflight" disabled>Preflight</button></div>
+        <p id="fileStatus" class="muted small">Belum ada file.</p>
+      </div>
+
+      <div class="card span4">
+        <h3>3. Strategi Import</h3>
+        <div class="field"><label>Mode</label><select id="mode"><option value="super_fast">Super Cepat - Native-like load()</option><option value="normal">Aman - Upsert row-by-row</option></select></div>
+        <div class="field"><label>Batch Data</label><input id="batchSize" type="number" min="1" max="500" value="80" /></div>
+        <div class="field"><label>Batch Foto</label><input id="photoBatchSize" type="number" min="1" max="50" value="8" /></div>
+        <label class="check"><input id="continueOnError" type="checkbox" checked/><span><b>Lanjut walau ada error</b><br/><span class="muted small">Error dicatat, batch berikutnya tetap lanjut.</span></span></label>
+        <label class="check"><input id="importPhotos" type="checkbox" checked/><span><b>Import foto setelah produk terbuat</b><br/><span class="muted small">Foto menunggu product.template berhasil created/updated.</span></span></label>
+      </div>
+
+      <div class="card span12">
+        <h3>Status Fase</h3>
+        <div class="phase" id="phasePills"></div>
+        <div style="height:12px"></div>
+        <div class="progress"><div class="bar" id="overallBar"></div></div>
+        <p class="muted small" id="currentStatus">Belum mulai.</p>
+        <div class="stats" style="margin-top:12px">
+          <div class="stat"><b id="stProcessed">0</b><span>Processed</span></div>
+          <div class="stat"><b id="stCreated">0</b><span>Created</span></div>
+          <div class="stat"><b id="stUpdated">0</b><span>Updated/Upserted</span></div>
+          <div class="stat"><b id="stSkipped">0</b><span>Skipped</span></div>
+          <div class="stat"><b id="stErrors">0</b><span>Errors</span></div>
+        </div>
+      </div>
+
+      <div class="card span8">
+        <h3>Preview Sheet</h3>
+        <div class="tableWrap"><table><thead><tr><th>Urutan</th><th>Sheet</th><th>Model</th><th>Rows</th><th>Status</th></tr></thead><tbody id="previewBody"><tr><td colspan="5" class="muted">Belum preview.</td></tr></tbody></table></div>
+      </div>
+
+      <div class="card span4">
+        <h3>Foto Produk</h3>
+        <p class="muted small">Status khusus foto akan muncul setelah product.template selesai.</p>
+        <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+          <div class="stat"><b id="phQueued">0</b><span>Queued</span></div>
+          <div class="stat"><b id="phDone">0</b><span>Done</span></div>
+          <div class="stat"><b id="phFailed">0</b><span>Failed</span></div>
+          <div class="stat"><b id="phMissing">0</b><span>Target Missing</span></div>
+        </div>
+        <p id="photoStatus" class="muted small">Menunggu import.</p>
+        <button class="secondary" id="btnRunPhotosOnly" disabled style="width:100%;margin-top:10px">Retry / Import Foto Saja</button>
+        <p class="muted small">Gunakan tombol ini untuk menjalankan ulang <code>photo_import_queue</code> tanpa mengulang import produk.</p>
+      </div>
+
+
+      <div class="card span12">
+        <h3>Panduan ChatGPT XLSX Lokalmart</h3>
+        <p class="muted small">Panduan ini harus diikuti setiap kali ChatGPT membuat file XLSX untuk Importer Studio. Termasuk pencegahan error boolean Odoo <code>bool has no lower</code>, aturan photo_import_queue, external ID, dan mode Super Cepat.</p>
+        <div class="row" style="margin-bottom:12px">
+          <button class="secondary" id="btnLoadGuide">Tampilkan Panduan TXT</button>
+          <a href="/docs/CHATGPT_XLSX_GUIDE.txt" target="_blank"><button class="secondary" type="button">Buka TXT</button></a>
+          <a href="/docs/CHATGPT_XLSX_GUIDE.txt" download><button class="secondary" type="button">Download TXT</button></a>
+        </div>
+        <div class="guideBox hidden" id="guideBox">Klik “Tampilkan Panduan TXT”.</div>
+      </div>
+
+      <div class="card span12">
+        <h3>Log Operasional</h3>
+        <div class="log" id="log"></div>
+        <div class="footerActions"><button class="secondary" id="btnDownloadLog">Download Log JSON</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const API = '/api/odoo';
+const phaseList = ['connection','upload','preview','preflight','schema','master','products','relations','photos','report'];
+const phaseLabels = {connection:'Koneksi',upload:'Upload',preview:'Preview',preflight:'Preflight',schema:'Schema/Fields',master:'Master Data',products:'Produk',relations:'Relasi',photos:'Foto',report:'Laporan'};
+let state = { fileBase64:null, fileName:'', preview:null, logs:[], stopped:false, stats:{processed:0,created:0,updated:0,skipped:0,errors:0}, currentPhase:'connection', donePhases:new Set(), photo:{queued:0,done:0,failed:0,missing:0} };
+
+const $ = id => document.getElementById(id);
+function target(){return {url:$('url').value.trim(),db:$('db').value.trim(),username:$('username').value.trim(),password:$('password').value};}
+function options(){return {continueOnError:$('continueOnError').checked, skipExistingFields:true, importPhotosAfterProducts:$('importPhotos').checked, disableTracking:true, imageRetryAttempts:3, imageRetryBaseDelayMs:1200, imageDelayMs:350};}
+function log(msg, data){const item={time:new Date().toISOString(),msg,data:data||null};state.logs.push(item);$('log').textContent=state.logs.map(x=>`[${x.time.slice(11,19)}] ${x.msg}${x.data?'\n'+JSON.stringify(x.data,null,2):''}`).join('\n');$('log').scrollTop=$('log').scrollHeight;}
+function setPhase(p){state.currentPhase=p;renderPhases();}
+function donePhase(p){state.donePhases.add(p);renderPhases();}
+function renderSteps(){ $('steps').innerHTML=phaseList.map(p=>`<div class="step ${state.currentPhase===p?'active':''} ${state.donePhases.has(p)?'done':''}"><span>${phaseLabels[p]}</span><span>${state.donePhases.has(p)?'✓':state.currentPhase===p?'●':'○'}</span></div>`).join('');}
+function renderPhases(){renderSteps();$('phasePills').innerHTML=phaseList.map(p=>`<span class="pill ${state.currentPhase===p?'active':''} ${state.donePhases.has(p)?'done':''}">${state.donePhases.has(p)?'✓':state.currentPhase===p?'●':'○'} ${phaseLabels[p]}</span>`).join('');}
+function addStats(r){if(!r)return;state.stats.processed+=(r.processed||0);state.stats.created+=(r.created||0);state.stats.updated+=(r.updated||0);state.stats.skipped+=(r.skipped||0);state.stats.errors+=(r.errors?r.errors.length:0);renderStats();}
+function renderStats(){ $('stProcessed').textContent=state.stats.processed; $('stCreated').textContent=state.stats.created; $('stUpdated').textContent=state.stats.updated; $('stSkipped').textContent=state.stats.skipped; $('stErrors').textContent=state.stats.errors; }
+function renderPhoto(){ $('phQueued').textContent=state.photo.queued; $('phDone').textContent=state.photo.done; $('phFailed').textContent=state.photo.failed; $('phMissing').textContent=state.photo.missing; }
+function setOverall(done,total){const pct=total?Math.min(100,Math.round(done/total*100)):0;$('overallBar').style.width=pct+'%';$('currentStatus').textContent=`${pct}% — ${done}/${total} row/fase diproses.`;}
+async function post(action,payload={},customTarget){const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,target:customTarget||target(),payload})});const json=await res.json();if(!json.ok)throw new Error(json.error+(json.detail?'\n'+json.detail:''));return json;}
+
+$('file').addEventListener('change', async e=>{const f=e.target.files[0];if(!f)return;state.fileName=f.name;state.fileBase64=await fileToBase64(f);$('fileStatus').textContent=`${f.name} siap (${Math.round(f.size/1024)} KB)`;$('btnPreview').disabled=false;$('btnPreflight').disabled=false;donePhase('upload');setPhase('preview');log('File XLSX siap dibaca.',{name:f.name,size:f.size});});
+function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',').pop());r.onerror=reject;r.readAsDataURL(file);});}
+
+$('btnTest').onclick=async()=>{try{setPhase('connection');$('connStatus').textContent='Menguji koneksi...';const r=await post('test_connection');$('connStatus').textContent=`✅ Terhubung. UID ${r.uid}${r.version?' — '+(r.version.server_version||''):''}`;donePhase('connection');log('Koneksi Odoo berhasil.',r);}catch(e){$('connStatus').textContent='❌ '+e.message;log('Koneksi gagal.',{error:e.message});}};
+$('btnPreview').onclick=preview;
+async function preview(){if(!state.fileBase64)return;setPhase('preview');const r=await post('preview_xlsx',{fileBase64:state.fileBase64});state.preview=r.sheets;renderPreview();donePhase('preview');$('btnRun').disabled=false;$('btnRunPhotosOnly').disabled=false;log('Preview XLSX selesai.',{sheets:r.sheets.length,total_rows:r.total_rows});}
+function renderPreview(){const rows=state.preview||[];$('previewBody').innerHTML=rows.map((s,i)=>`<tr><td>${i+1}</td><td>${s.sheet}</td><td><code>${s.model}</code></td><td>${s.rows}</td><td><span class="pill ok">Siap</span></td></tr>`).join('')||'<tr><td colspan="5" class="muted">Tidak ada sheet data.</td></tr>';}
+function getPhotoSheet(){
+  const sheets=state.preview||[];
+  return sheets.find(s=>s.model==='photo_import_queue' || s.sheet==='photo_import_queue' || s.sheet==='_photo_import_queue');
+}
+async function runPhotoOnly(){
+  if(!state.preview) await preview();
+  const photoSheet=getPhotoSheet();
+  if(!photoSheet){alert('Tidak ada sheet photo_import_queue.');return;}
+  state.stopped=false;$('btnRunPhotosOnly').disabled=true;$('btnStop').disabled=false;setPhase('photos');
+  state.photo={queued:photoSheet.rows,done:0,failed:0,missing:0};renderPhoto();$('photoStatus').textContent=`Retry foto mulai. ${photoSheet.rows} antrean.`;
+  try{
+    const pBatch=Math.max(1,Number($('photoBatchSize').value||4));
+    for(let offset=0; offset<photoSheet.rows; offset+=pBatch){
+      if(state.stopped) throw new Error('Import dihentikan user.');
+      const r=await post('import_product_images_batch',{fileBase64:state.fileBase64,sheet:photoSheet.sheet,offset,limit:pBatch,options:options()});
+      state.photo.done+=r.report.done||0;state.photo.failed+=r.report.failed||0;state.photo.missing+=r.report.target_missing||0;renderPhoto();
+      $('photoStatus').textContent=`Retry foto ${Math.min(offset+pBatch,photoSheet.rows)}/${photoSheet.rows}. Done ${state.photo.done}, gagal ${state.photo.failed}.`;
+      log(`Retry batch foto selesai offset ${offset}`,r.report);
+    }
+    donePhase('photos');setPhase('report');log('Retry/import foto saja selesai.',{photo:state.photo});
+  }catch(e){log('Retry/import foto berhenti/error.',{error:e.message});alert(e.message.slice(0,700));}
+  finally{$('btnRunPhotosOnly').disabled=false;$('btnStop').disabled=true;}
+}
+$('btnRunPhotosOnly').onclick=runPhotoOnly;
+$('btnPreflight').onclick=async()=>{if(!state.fileBase64)return;setPhase('preflight');const r=await post('preflight_xlsx',{fileBase64:state.fileBase64});donePhase('preflight');const pf=r.preflight;log('Preflight selesai.',pf);if(!pf.ok)alert('Preflight menemukan error blocking. Lihat log.');};
+
+$('btnStop').onclick=()=>{state.stopped=true;log('User meminta stop setelah batch aktif selesai.');};
+$('btnRun').onclick=runImport;
+async function runImport(){
+  if(!state.preview) await preview();
+  state.stopped=false;$('btnRun').disabled=true;$('btnStop').disabled=false;state.stats={processed:0,created:0,updated:0,skipped:0,errors:0};state.photo={queued:0,done:0,failed:0,missing:0};renderStats();renderPhoto();
+  try{
+    setPhase('preflight');const pf=await post('preflight_xlsx',{fileBase64:state.fileBase64});log('Preflight sebelum import.',pf.preflight);donePhase('preflight');
+    const sheets=state.preview.filter(s=>s.rows>0);
+    const totalRows=sheets.reduce((a,s)=>a+s.rows,0);let globalDone=0;let productSuccess=0;
+    const groups={schema:['ir.model','ir.model.fields','ir.model.access'],master:['res.partner.category','res.partner','product.category','product.public.category','product.tag','product.attribute','product.attribute.value'],products:['product.template'],relations:['product.template.attribute.line','product.supplierinfo','product.image'],photos:['photo_import_queue']};
+    for(const phase of ['schema','master','products','relations']){
+      setPhase(phase);
+      const phaseSheets=sheets.filter(s=>groups[phase].includes(s.model));
+      for(const s of phaseSheets){
+        if(state.stopped) throw new Error('Import dihentikan user.');
+        const mode = ($('mode').value==='super_fast' && s.model!=='ir.model.fields') ? 'import_native_sheet_batch' : 'import_sheet_batch';
+        const batchSize = Math.max(1,Number($('batchSize').value||50));
+        for(let offset=0; offset<s.rows; offset+=batchSize){
+          if(state.stopped) throw new Error('Import dihentikan user.');
+          $('currentStatus').textContent=`${phaseLabels[phase]} — ${s.sheet} row ${offset+1}-${Math.min(offset+batchSize,s.rows)} dari ${s.rows}`;
+          const r=await post(mode,{fileBase64:state.fileBase64,sheet:s.sheet,offset,limit:batchSize,mode:$('mode').value,options:options()});
+          addStats(r.report);globalDone+=r.report.rows||0;setOverall(globalDone,totalRows);
+          if(s.model==='product.template') productSuccess+=(r.report.created||0)+(r.report.updated||0);
+          log(`Batch selesai: ${s.sheet} offset ${offset}`,r.report);
+        }
+      }
+      donePhase(phase);
+    }
+    if($('importPhotos').checked){
+      setPhase('photos');
+      const photoSheet=getPhotoSheet();
+      if(!photoSheet){$('photoStatus').textContent='Tidak ada sheet photo_import_queue.';log('Foto dilewati: sheet photo_import_queue tidak ada.');}
+      else if(productSuccess<=0){$('photoStatus').textContent='Foto tidak dijalankan karena 0 produk created/updated.';log('Foto ditahan: product.template belum berhasil created/updated.');}
+      else{
+        state.photo.queued=photoSheet.rows;renderPhoto();$('photoStatus').textContent=`Foto mulai. ${photoSheet.rows} antrean.`;
+        const pBatch=Math.max(1,Number($('photoBatchSize').value||8));
+        for(let offset=0; offset<photoSheet.rows; offset+=pBatch){
+          if(state.stopped) throw new Error('Import dihentikan user.');
+          const r=await post('import_product_images_batch',{fileBase64:state.fileBase64,sheet:photoSheet.sheet,offset,limit:pBatch,options:options()});
+          state.photo.done+=r.report.done||0;state.photo.failed+=r.report.failed||0;state.photo.missing+=r.report.target_missing||0;renderPhoto();
+          $('photoStatus').textContent=`Foto ${Math.min(offset+pBatch,photoSheet.rows)}/${photoSheet.rows}. Done ${state.photo.done}, gagal ${state.photo.failed}.`;
+          log(`Batch foto selesai offset ${offset}`,r.report);
+        }
+      }
+      donePhase('photos');
+    }
+    setPhase('report');donePhase('report');setOverall(totalRows,totalRows);log('Import selesai.',{stats:state.stats,photo:state.photo});
+  }catch(e){log('Import berhenti/error.',{error:e.message});alert(e.message.slice(0,700));}
+  finally{$('btnRun').disabled=false;$('btnStop').disabled=true;}
+}
+
+$('btnDownloadLog').onclick=()=>{const blob=new Blob([JSON.stringify({file:state.fileName,logs:state.logs,stats:state.stats,photo:state.photo},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`lokalmart_import_log_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;a.click();URL.revokeObjectURL(a.href);};
+
+
+$('btnLoadGuide').onclick=async()=>{
+  const box=$('guideBox');
+  box.classList.remove('hidden');
+  if(box.dataset.loaded==='1') return;
+  box.textContent='Memuat panduan...';
+  try{
+    const res=await fetch('/docs/CHATGPT_XLSX_GUIDE.txt');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    box.textContent=await res.text();
+    box.dataset.loaded='1';
+  }catch(e){
+    box.textContent='Gagal memuat panduan TXT: '+e.message;
+  }
+};
+
+renderPhases();renderStats();renderPhoto();
+</script>
+</body>
+</html>
